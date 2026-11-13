@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>lmsgi-trainer: HTML &amp; CSS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* @CODEMIRROR_CSS */
+</style>
+<style>
+/* @STYLES */
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <button class="menu-btn" id="menuBtn" aria-controls="side" aria-expanded="false">Ejercicios</button>
+    <div class="brand">lmsgi-trainer <small>HTML &amp; CSS · 0373</small></div>
+    <span class="store-warn" id="storeWarn" hidden title="El navegador no permite localStorage: el progreso se pierde al cerrar">Sin guardado</span>
+    <div class="prog" aria-live="polite"><span id="progText">0 / 0 hechos</span><div class="bar"><i id="progBar"></i></div></div>
+    <button class="btn" id="progBtn" aria-haspopup="dialog">Mi progreso</button>
+  </header>
+  <div class="body">
+    <nav class="side" id="side" aria-label="Ejercicios"></nav>
+    <main class="main">
+      <section class="card brief" id="brief"></section>
+      <div class="done-banner" id="doneBanner" role="status">
+        <span>Ejercicio resuelto. Todas las comprobaciones pasan.</span>
+        <button class="btn primary" id="nextBtn2">Siguiente ejercicio</button>
+      </div>
+      <section class="work">
+        <div class="card pane">
+          <div class="pane-head" role="tablist" aria-label="Código">
+            <button class="tab" role="tab" id="tabHtml" aria-selected="true">HTML</button>
+            <button class="tab" role="tab" id="tabCss" aria-selected="false">CSS</button>
+            <span class="spacer"></span>
+            <span class="hint-small" id="editHint"></span>
+          </div>
+          <div class="editor" id="editorHtml"></div>
+          <div class="editor" id="editorCss" hidden></div>
+        </div>
+        <div class="card pane">
+          <div class="pane-head">
+            <div class="seg" role="group" aria-label="Modo de vista">
+              <button id="modeSide" aria-pressed="true">Lado a lado</button>
+              <button id="modeOver" aria-pressed="false">Superponer</button>
+            </div>
+            <div class="seg" role="group" aria-label="Ancho de pantalla" id="widthSeg"></div>
+            <span class="spacer"></span>
+            <span class="overlay-tip" id="overTip" hidden>Mueve el ratón sobre la vista para comparar</span>
+          </div>
+          <div class="stage" id="stage"></div>
+        </div>
+      </section>
+      <section class="card checks" aria-live="polite">
+        <div class="checks-head">
+          <h2>Comprobaciones</h2>
+          <div class="score" title="Compara la posición y tamaño de cada elemento con el objetivo"><span>Parecido de maquetación</span><div class="bar"><i id="scoreBar"></i></div><span id="scoreText">–</span></div>
+          <span class="status" id="status">Comprobando…</span>
+        </div>
+        <ul class="check-list" id="checkList"></ul>
+      </section>
+      <section class="card sol-panel" id="solPanel">
+        <h2>Solución de referencia <button class="btn" id="copySol">Copiar</button><button class="btn" id="loadSol">Cargar en el editor</button></h2>
+        <pre id="solCode"></pre>
+      </section>
+    </main>
+  </div>
+</div>
+<dialog id="modal" aria-labelledby="modalTitle">
+  <h2 id="modalTitle"></h2>
+  <div id="modalBody"></div>
+  <div class="modal-actions" id="modalActions"></div>
+</dialog>
+<input type="file" id="importFile" accept=".json,application/json" hidden>
+<div id="probe" aria-hidden="true" style="position:absolute;left:-20000px;top:0;width:0;height:0;overflow:hidden"></div>
+<!-- @CODEMIRROR_JS -->
+<script>
+/* @EXERCISES */
+</script>
+<script>
+/* @APP */
+</script>
+</body>
+</html>

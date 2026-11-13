@@ -1,0 +1,16 @@
+{
+  "name": "lmsgi-trainer-html-css",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Entrenador de HTML y CSS para LMSGI (0373): ejercicios cortos con corrección automática",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:cdn": "node scripts/build.mjs --cdn",
+    "dev": "node scripts/build.mjs --watch",
+    "test": "node scripts/build.mjs && node tests/run.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}
