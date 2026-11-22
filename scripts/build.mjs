@@ -51,6 +51,8 @@ function build() {
   put('<!-- @CODEMIRROR_JS -->', cmJs);
   put('/* @EXERCISES */', safeJs(exercises));
   put('/* @APP */', safeJs(read('src/app.js')));
+  // Las chuletas van al lado de index.html en el repo; publicada como artifact no hay archivos al lado: se enlazan las de GitHub.
+  put('@RECURSOS_URL', cdn ? 'https://github.com/scontreraslopez/lmsgi-trainer-html-css/blob/main/recursos/' : 'recursos/');
 
   const target = cdn ? 'dist/index.cdn.html' : 'index.html';
   if (cdn) mkdirSync(join(root, 'dist'), { recursive: true });

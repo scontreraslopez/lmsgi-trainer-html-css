@@ -50,12 +50,17 @@ code{font-family:var(--f-mono);font-size:.88em;background:var(--accent-soft);pad
 .brand{font-family:var(--f-display);font-weight:800;font-size:19px;letter-spacing:-.01em;display:flex;align-items:baseline;gap:8px;white-space:nowrap}
 .brand small{font-family:var(--f-mono);font-weight:400;font-size:12px;color:var(--muted)}
 .prog{display:flex;align-items:center;gap:10px;margin-left:auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.top .btn + .btn{margin-left:-12px}
 .prog .bar{width:160px;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
 .prog .bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .3s}
 .menu-btn{display:none;border:1px solid var(--line);background:transparent;border-radius:8px;padding:4px 10px;cursor:pointer}
 
 .body{display:grid;grid-template-columns:270px 1fr;min-height:0}
 .side{border-right:1px solid var(--line);background:var(--panel);overflow:auto;padding:12px 10px 24px}
+.side-links{display:flex;flex-direction:column;gap:6px;margin:0 0 14px}
+.side-link{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;color:var(--ink);text-decoration:none;font-weight:600;font-size:14px}
+.side-link small{font-family:var(--f-mono);font-weight:400;font-size:11px;color:var(--muted)}
+.side-link:hover{border-color:var(--accent);color:var(--accent)}
 .blk{margin-bottom:14px}
 .blk h3{font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.02em;margin:6px 10px 4px;display:flex;align-items:baseline;gap:10px;color:var(--muted)}
 .blk h3 span{margin-left:auto;white-space:nowrap;font-family:var(--f-mono);font-weight:400;font-size:11px;font-variant-numeric:tabular-nums}
@@ -70,6 +75,7 @@ code{font-family:var(--f-mono);font-size:.88em;background:var(--accent-soft);pad
 .ex-link[aria-current="true"] .ex-num{color:inherit}
 
 .main{overflow:auto;padding:18px 20px 40px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.main>*{flex-shrink:0} /* si encogen, el panel de vista previa (overflow:hidden) recorta «Objetivo» */
 .card{background:var(--panel);border:1px solid var(--line);border-radius:12px}
 .brief{padding:16px 18px;display:grid;grid-template-columns:1fr auto;gap:8px 20px;align-items:start}
 .brief h1{font-family:var(--f-display);font-weight:800;font-size:24px;letter-spacing:-.015em;margin:0;text-wrap:balance}
@@ -171,7 +177,7 @@ dialog#modal h2{font-family:var(--f-display);font-weight:800;font-size:20px;marg
 dialog#modal.danger h2{color:var(--bad)}
 #modalBody{font-size:14.5px}
 #modalBody p{margin:.4em 0}
-#modalBody .muted{color:var(--muted);font-size:13px}
+#modalBody .muted,.brief-text .muted{color:var(--muted);font-size:13px}
 #modalBody .stats{display:flex;gap:10px;margin:10px 0 14px}
 #modalBody .stat{flex:1;padding:10px 12px;border-radius:10px;background:var(--bg)}
 #modalBody .stat b{display:block;font-family:var(--f-display);font-size:22px;font-variant-numeric:tabular-nums}
@@ -192,10 +198,17 @@ dialog#modal.danger h2{color:var(--bad)}
   .side.open{display:block}
   .menu-btn{display:inline-block}
   .prog .bar{width:80px}
+  .top{gap:12px;padding:10px 12px}
+  .top .btn + .btn{margin-left:-4px}
+  .brand small{display:none}
   .brief{grid-template-columns:1fr}
   .brief-actions{justify-content:flex-start}
   .main{padding:12px}
   .stage{flex-direction:column}
   .view{width:100%}
+}
+@media (max-width: 520px){
+  .brand,.prog{display:none}
+  #randBtn{margin-left:auto}
 }
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}

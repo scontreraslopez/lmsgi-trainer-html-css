@@ -1,11 +1,11 @@
 # lmsgi-trainer: HTML & CSS — diseño y estado
 
-**Fecha:** 2026-11-13 · versión 2 · 27 ejercicios
+**Fecha:** 2026-11-22 · versión 3 · 75 ejercicios
 
 ## Decisiones (Sergio)
 - Prototipo como artifact en Claude → después, repo en GitHub para alumnos: descargar y abrir `index.html` en el navegador (o GitHub Pages).
 - Corrección híbrida: comprobaciones concretas + parecido visual con la solución. No competitivo (sin ranking ni tiempo).
-- Cubrir los 4 bloques; afinar con el temario real de LMSGI que pasará Sergio.
+- Bloques alineados con el temario real de LMSGI 2026/27 (UP01–UP06 de `markdown-2026` y los apartados de Eniun que enlaza). Grid, que en el temario es ampliación, va en un bloque aparte.
 - El progreso se guarda; reiniciar todo exige confirmación con aviso «¡Cuidado! Se borrará todo el progreso».
 
 ## Cómo funciona
@@ -45,20 +45,25 @@
 | `attr: [sel, atributo]` | todos tienen el atributo no vacío |
 | `labels: true` | todo campo de formulario tiene `<label>` asociado |
 | `css: [sel, [props]]` | estilos computados iguales a la solución (expande padding, margin, border, border-radius, gap) |
+| `css` + `state: ':hover'` | ídem simulando `:hover`/`:focus`/`:active` (reglas duplicadas con una clase de la misma especificidad, sin transiciones) |
+| `css` + `pseudo: '::before'` | ídem en un pseudoelemento (`content` incluido) |
 | `rect: sel, tol?` | posición y tamaño iguales a la solución (±2 px) |
 | `src: ['css'|'html', /re/]` / `nosrc` | regex sobre el código (sin comentarios) |
 | `js: (U, S, src) => true \| 'mensaje'` | comprobación libre |
 | `w: 400` (en cualquier check) | se evalúa a ese ancho de ventana |
 
-Verificación: todas las soluciones pasan sus checks y ningún starter los pasa todos (test Playwright). Alternativas válidas probadas: box-model con width 150, centrado con grid, pie pegado con height 100vh, label envolviendo el input. Flujo de progreso probado: resolver → descargar copia → borrar todo → importar → recargar.
+Verificación: todas las soluciones pasan sus checks y ningún starter los pasa todos (test Playwright). `ALTERNATIVAS`: soluciones distintas que también deben aprobar (box-model con width 150, centrado con grid, menú con float + overflow, clearfix, planes con grid…). `NEGATIVAS`: respuestas equivocadas que deben suspender un check concreto (sin `:hover`, sin `::first-letter`, `absolute` en vez de `fixed`, `pattern` demasiado permisivo…), para que los checks de estados, pseudoelementos y scroll no aprueben en vacío. Flujo de progreso probado: resolver → descargar copia → borrar todo → importar → recargar.
 
 ## Banco actual
-1. **Semántica, listas, tablas** (8): sopa de divs, receta ul/ol, glosario dl, abbr/time/code/strong, tabla horario (caption, scope), colspan/rowspan, figure/figcaption, migas de pan (aria-current).
-2. **Formularios** (4): login, fieldset radios/checkbox, registro con validación HTML5 (pattern, min/max, select, textarea), buscador GET.
-3. **Selectores, cascada, box model** (7): botones desde ficha de diseño, caja 200×100 (box-sizing), centrar con margin auto, selectores de atributo y nth-child, especificidad sin !important, tipografía, variables CSS.
-4. **Flexbox, Grid, responsive** (8): navbar flex, centrado total, tarjetas flex-wrap, galería grid con span, grid-template-areas, mobile first con @media, pie pegado, contador con position absolute.
+1. **UP01–03 · Estructura, texto y enlaces** (11): sopa de divs, receta ul/ol, ol type/start anidadas, glosario dl, abbr/time/code/strong, sup/sub/kbd/mark/small, blockquote/q/cite, div y span, enlaces (_blank, mailto, tel, download), índice con marcadores, migas de pan.
+2. **UP02–03 · Tablas, multimedia y metadatos** (10): horario (caption, scope), colspan/rowspan, tfoot, figure/figcaption, miniaturas enlazadas (width/height, alt), video/source/audio, limpiar iframes de YouTube y Maps, head completo (charset, viewport, description, author, favicon), SEO (un h1, jerarquía, alt, texto de enlace), ficha técnica (actividad 1 de la UP02).
+3. **UP02–03 · Formularios** (10): suscripción (actividad 2 de la UP02), login, radios/checkbox, tipos de input, registro, patrones, optgroup/datalist, readonly/disabled/maxlength/reset, consulta completa (al estilo de la práctica de la UP03), buscador GET.
+4. **UP04 · Selectores, texto y cajas** (14): selectores básicos, combinadores, especificidad, unidades, fondos (cover, rgba), propiedades de texto, tipografía, listas con CSS, box-sizing, centrar, max-width/min-height, bordes y sombras, botones, tarjetas inline-block (formato examen).
+5. **UP05 · Display, posición y pseudoclases** (14): display/visibility, huecos de inline-block, menú horizontal, menú vertical, atributos y nth-child, pseudoelementos, tablas con CSS, hover/focus/transition, formularios con CSS, overflow y ellipsis, float y clearfix, contador absolute, z-index, sticky y fixed.
+6. **UP06 · Flexbox y media queries** (13): navbar, justify-content, centrado, columna, flex-wrap, flex: 0 0 / flex: 1, order/align-self, pie pegado, variables CSS, sombras/cursor/transform, mobile first, cabecera responsive (actividad de la UP06), campos en fila.
+7. **Ampliación · CSS Grid** (3): galería con span, grid-template-areas, auto-fill + minmax.
+
+Botón **Aleatorio** en la cabecera: va a un ejercicio sin resolver al azar.
 
 ## Próximos pasos
-- Ajustar al temario real de LMSGI (Sergio lo pasa).
-- Más ejercicios por bloque (objetivo: «como un cosaco», 10–15 por bloque) y quizás un modo «aleatorio».
-- Migrar a repo: `exercises/*.js` separados, CodeMirror vendorizado (funciona sin internet), abrir con doble clic.
+- Ir añadiendo ejercicios cuando se cierren las actividades de la UP05 y la UP06 (hay TODO en sus apuntes).

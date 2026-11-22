@@ -407,12 +407,17 @@ code{font-family:var(--f-mono);font-size:.88em;background:var(--accent-soft);pad
 .brand{font-family:var(--f-display);font-weight:800;font-size:19px;letter-spacing:-.01em;display:flex;align-items:baseline;gap:8px;white-space:nowrap}
 .brand small{font-family:var(--f-mono);font-weight:400;font-size:12px;color:var(--muted)}
 .prog{display:flex;align-items:center;gap:10px;margin-left:auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.top .btn + .btn{margin-left:-12px}
 .prog .bar{width:160px;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
 .prog .bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .3s}
 .menu-btn{display:none;border:1px solid var(--line);background:transparent;border-radius:8px;padding:4px 10px;cursor:pointer}
 
 .body{display:grid;grid-template-columns:270px 1fr;min-height:0}
 .side{border-right:1px solid var(--line);background:var(--panel);overflow:auto;padding:12px 10px 24px}
+.side-links{display:flex;flex-direction:column;gap:6px;margin:0 0 14px}
+.side-link{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;color:var(--ink);text-decoration:none;font-weight:600;font-size:14px}
+.side-link small{font-family:var(--f-mono);font-weight:400;font-size:11px;color:var(--muted)}
+.side-link:hover{border-color:var(--accent);color:var(--accent)}
 .blk{margin-bottom:14px}
 .blk h3{font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.02em;margin:6px 10px 4px;display:flex;align-items:baseline;gap:10px;color:var(--muted)}
 .blk h3 span{margin-left:auto;white-space:nowrap;font-family:var(--f-mono);font-weight:400;font-size:11px;font-variant-numeric:tabular-nums}
@@ -427,6 +432,7 @@ code{font-family:var(--f-mono);font-size:.88em;background:var(--accent-soft);pad
 .ex-link[aria-current="true"] .ex-num{color:inherit}
 
 .main{overflow:auto;padding:18px 20px 40px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.main>*{flex-shrink:0} /* si encogen, el panel de vista previa (overflow:hidden) recorta «Objetivo» */
 .card{background:var(--panel);border:1px solid var(--line);border-radius:12px}
 .brief{padding:16px 18px;display:grid;grid-template-columns:1fr auto;gap:8px 20px;align-items:start}
 .brief h1{font-family:var(--f-display);font-weight:800;font-size:24px;letter-spacing:-.015em;margin:0;text-wrap:balance}
@@ -528,7 +534,7 @@ dialog#modal h2{font-family:var(--f-display);font-weight:800;font-size:20px;marg
 dialog#modal.danger h2{color:var(--bad)}
 #modalBody{font-size:14.5px}
 #modalBody p{margin:.4em 0}
-#modalBody .muted{color:var(--muted);font-size:13px}
+#modalBody .muted,.brief-text .muted{color:var(--muted);font-size:13px}
 #modalBody .stats{display:flex;gap:10px;margin:10px 0 14px}
 #modalBody .stat{flex:1;padding:10px 12px;border-radius:10px;background:var(--bg)}
 #modalBody .stat b{display:block;font-family:var(--f-display);font-size:22px;font-variant-numeric:tabular-nums}
@@ -549,11 +555,18 @@ dialog#modal.danger h2{color:var(--bad)}
   .side.open{display:block}
   .menu-btn{display:inline-block}
   .prog .bar{width:80px}
+  .top{gap:12px;padding:10px 12px}
+  .top .btn + .btn{margin-left:-4px}
+  .brand small{display:none}
   .brief{grid-template-columns:1fr}
   .brief-actions{justify-content:flex-start}
   .main{padding:12px}
   .stage{flex-direction:column}
   .view{width:100%}
+}
+@media (max-width: 520px){
+  .brand,.prog{display:none}
+  #randBtn{margin-left:auto}
 }
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 
@@ -566,6 +579,7 @@ dialog#modal.danger h2{color:var(--bad)}
     <div class="brand">lmsgi-trainer <small>HTML &amp; CSS · 0373</small></div>
     <span class="store-warn" id="storeWarn" hidden title="El navegador no permite localStorage: el progreso se pierde al cerrar">Sin guardado</span>
     <div class="prog" aria-live="polite"><span id="progText">0 / 0 hechos</span><div class="bar"><i id="progBar"></i></div></div>
+    <button class="btn" id="randBtn" title="Salta a un ejercicio sin resolver al azar">Aleatorio</button>
     <button class="btn" id="progBtn" aria-haspopup="dialog">Mi progreso</button>
   </header>
   <div class="body">
@@ -13650,15 +13664,26 @@ CodeMirror.defineMIME("application/typescript", { name: "javascript", typescript
 <script>
 /* ---- 00-comun.js ---- */
 /* Bloques, constantes compartidas y registro de ejercicios.
-   El orden de los ejercicios es el orden de los archivos (00, 01, 02…) y dentro de cada uno. */
+   El orden de los ejercicios es el orden de los archivos (00, 01, 02…) y dentro de cada uno.
+   Los bloques siguen las unidades del temario de LMSGI 2026/27 (UP01–UP06). */
 window.BLOCKS = [
-  { id: 'sem', name: 'HTML semántico, listas y tablas' },
-  { id: 'form', name: 'Formularios' },
-  { id: 'sel', name: 'Selectores, cascada y box model' },
-  { id: 'lay', name: 'Flexbox, Grid y responsive' }
+  { id: 'sem', name: 'UP01–03 · Estructura, texto y enlaces' },
+  { id: 'med', name: 'UP02–03 · Tablas, multimedia y metadatos' },
+  { id: 'form', name: 'UP02–03 · Formularios' },
+  { id: 'sel', name: 'UP04 · Selectores, texto y cajas' },
+  { id: 'pos', name: 'UP05 · Display, posición y pseudoclases' },
+  { id: 'lay', name: 'UP06 · Flexbox y media queries' },
+  { id: 'grid', name: 'Ampliación · CSS Grid' }
 ];
 
+// Imagen genérica (paisaje) sin tamaño intrínseco: se adapta a la caja.
 const IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 140'%3E%3Crect width='240' height='140' fill='%23dbeafe'/%3E%3Cpath d='M0 140 L80 60 L130 110 L170 80 L240 140Z' fill='%231e3a8a'/%3E%3Ccircle cx='190' cy='35' r='16' fill='%23f59e0b'/%3E%3C/svg%3E";
+
+// Misma imagen con tamaño fijo (120 × 70): como fondo, se repite en mosaico.
+const FONDO = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='70' viewBox='0 0 240 140'%3E%3Crect width='240' height='140' fill='%23fde68a'/%3E%3Cpath d='M0 140 L80 60 L130 110 L170 80 L240 140Z' fill='%23b45309'/%3E%3Ccircle cx='190' cy='35' r='16' fill='%23fff7ed'/%3E%3C/svg%3E";
+
+// Avatar cuadrado (silueta).
+const AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23c7d2fe'/%3E%3Ccircle cx='50' cy='38' r='18' fill='%234338ca'/%3E%3Cpath d='M18 100 C18 70 82 70 82 100Z' fill='%234338ca'/%3E%3C/svg%3E";
 
 const FORM_CSS = `body { margin: 16px; font-size: 14px; }
 form { max-width: 300px; display: flex; flex-direction: column; gap: 4px; }
@@ -13680,10 +13705,50 @@ button {
   font-weight: 600;
 }`;
 
+// Comprobación de un atributo pattern: lo compila como hace el navegador (todo el valor, flag v)
+// y lo prueba con valores que deben pasar y valores que no.
+function patternCheck(sel, oks, bads) {
+  return (U) => {
+    const el = U.q(sel);
+    if (!el) return 'No encuentro ' + sel;
+    const p = el.getAttribute('pattern');
+    if (!p) return 'Falta el atributo pattern';
+    let re;
+    try { re = new RegExp('^(?:' + p + ')$', 'v'); } catch (e) {
+      try { re = new RegExp('^(?:' + p + ')$', 'u'); } catch (e2) { return 'El pattern no es una expresión regular válida'; }
+    }
+    const fallaOk = oks.find((v) => !re.test(v));
+    if (fallaOk !== undefined) return 'Rechaza «' + fallaOk + '», que es válido';
+    const pasaMal = bads.find((v) => re.test(v));
+    if (pasaMal !== undefined) return 'Acepta «' + pasaMal + '», que no es válido';
+    return true;
+  };
+}
+
+// Comprobación tras hacer scroll: compara la posición de los elementos con la solución.
+function rectAfterScroll(sel, y) {
+  return (U, S) => {
+    const at = (H) => {
+      const se = H.doc.scrollingElement; se.scrollTop = y;
+      const r = H.qa(sel).map((el) => H.rect(el));
+      se.scrollTop = 0;
+      return r;
+    };
+    const a = at(U), b = at(S);
+    if (a.length !== b.length) return 'Hay ' + a.length + ' «' + sel + '», se esperan ' + b.length;
+    for (let i = 0; i < b.length; i++) {
+      if (Math.abs(a[i].x - b[i].x) > 2 || Math.abs(a[i].y - b[i].y) > 2) {
+        return 'Tras bajar ' + y + ' px, ' + sel + ' está en (' + Math.round(a[i].x) + ', ' + Math.round(a[i].y) + ') · objetivo (' + Math.round(b[i].x) + ', ' + Math.round(b[i].y) + ')';
+      }
+    }
+    return true;
+  };
+}
+
 window.EXERCISES = [];
 
-/* ---- 01-semantica.js ---- */
-/* ===================== BLOQUE 1 · SEMÁNTICA ===================== */
+/* ---- 01-html-estructura.js ---- */
+/* ===================== BLOQUE · UP01–UP03 · ESTRUCTURA, TEXTO Y ENLACES ===================== */
 window.EXERCISES.push(
 {
   id: 'esqueleto-semantico', block: 'sem', title: 'Adiós a la sopa de divs', edit: 'html', w: 480, h: 340,
@@ -13740,10 +13805,8 @@ footer p { margin: 0; }`,
     { d: 'El artículo tiene <code>&lt;h2&gt;</code> y <code>&lt;p&gt;</code>', exists: 'article > h2 + p' },
     { d: '<code>&lt;footer&gt;</code> con un párrafo', exists: 'footer > p' },
     { d: 'Ni un solo <code>&lt;div&gt;</code>', none: 'div' }
-  ]
-},
-{
-  id: 'receta-listas', block: 'sem', title: 'Receta con listas', edit: 'html', w: 480, h: 320,
+  ]},
+{id: 'receta-listas', block: 'sem', title: 'Receta con listas', edit: 'html', w: 480, h: 320,
   tags: ['h1', 'h2', 'ul', 'ol', 'li'],
   brief: `<p>La receta está escrita a mano con guiones y <code>&lt;br&gt;</code>. Pásala a HTML de verdad:</p>
 <ul><li>El nombre del plato es el título principal.</li><li>«Ingredientes» y «Pasos» son subtítulos.</li><li>Los ingredientes no tienen orden; los pasos sí.</li></ul>`,
@@ -13779,10 +13842,58 @@ li { margin: 2px 0; }`,
     { d: '3 pasos en una <code>&lt;ol&gt;</code>', count: ['ol > li', 3] },
     { d: 'Sin <code>&lt;br&gt;</code> para separar elementos', none: 'br' },
     { d: 'Sin guiones ni números escritos a mano', js: (U) => U.qa('li').every((li) => !/^\s*(-|\d+\.)/.test(li.textContent)) || 'Algún <li> empieza por «-» o «1.»' }
+  ]},
+{
+  id: 'listas-tipos', block: 'sem', title: 'Listas numeradas a tu manera', edit: 'html', w: 480, h: 330,
+  tags: ['ol type', 'start', 'listas anidadas'],
+  brief: `<p>Alguien ha escrito los números de las listas a mano. Haz que los ponga el navegador:</p>
+<ul><li>Las unidades, con <strong>números romanos en mayúscula</strong> (I, II, III).</li><li>Los apartados de la UP03 son una <strong>lista ordenada anidada</strong> dentro de su unidad, con <strong>letras minúsculas</strong> (a, b, c).</li><li>Las actividades pendientes siguen la numeración de las tres que ya entregaste: <strong>empiezan en 4</strong>.</li></ul>`,
+  hint: `<code>&lt;ol type="I"&gt;</code>, <code>&lt;ol type="a"&gt;</code> y <code>&lt;ol start="4"&gt;</code>. La lista anidada va <em>dentro</em> del <code>&lt;li&gt;</code> de la UP03, no después.`,
+  css: `body { margin: 16px; font-size: 15px; }
+h2 { font-size: 17px; margin: 0 0 6px; }
+ol, ul { margin: 0 0 12px; }`,
+  html: `<h2>Temario del primer trimestre</h2>
+<ol>
+  <li>I. Lenguajes de marcas y HTML inicial</li>
+  <li>II. HTML I</li>
+  <li>III. HTML II</li>
+</ol>
+<ul>
+  <li>a) Elementos de ordenación</li>
+  <li>b) Marcadores</li>
+  <li>c) Metainformación</li>
+</ul>
+<h2>Actividades pendientes</h2>
+<ol>
+  <li>4. Práctica de la UP03</li>
+  <li>5. Test de la UP03</li>
+</ol>`,
+  sol: `<h2>Temario del primer trimestre</h2>
+<ol type="I">
+  <li>Lenguajes de marcas y HTML inicial</li>
+  <li>HTML I</li>
+  <li>HTML II
+    <ol type="a">
+      <li>Elementos de ordenación</li>
+      <li>Marcadores</li>
+      <li>Metainformación</li>
+    </ol>
+  </li>
+</ol>
+<h2>Actividades pendientes</h2>
+<ol start="4">
+  <li>Práctica de la UP03</li>
+  <li>Test de la UP03</li>
+</ol>`,
+  checks: [
+    { d: 'Tres unidades en una <code>&lt;ol type="I"&gt;</code>', count: ['ol[type="I"] > li', 3] },
+    { d: 'Los apartados van dentro del tercer <code>&lt;li&gt;</code>, en una <code>&lt;ol type="a"&gt;</code>', count: ['ol[type="I"] > li:nth-child(3) > ol[type="a"] > li', 3] },
+    { d: 'Las actividades pendientes empiezan en 4', count: ['ol[start="4"] > li', 2] },
+    { d: 'Ninguna lista sin orden', none: 'ul' },
+    { d: 'Sin números ni letras escritos a mano', js: (U) => U.qa('li').every((li) => !/^\s*([IVX]+\.|[a-z]\)|\d+\.)/.test(li.firstChild ? li.firstChild.textContent : '')) || 'Algún <li> empieza por «I.», «a)» o «4.»' }
   ]
 },
-{
-  id: 'glosario-dl', block: 'sem', title: 'Glosario con lista de definiciones', edit: 'html', w: 480, h: 300,
+{id: 'glosario-dl', block: 'sem', title: 'Glosario con lista de definiciones', edit: 'html', w: 480, h: 300,
   tags: ['dl', 'dt', 'dd'],
   brief: `<p>Convierte el glosario en una <strong>lista de definiciones</strong>: cada término y su explicación.</p>`,
   hint: `<code>&lt;dl&gt;</code> envuelve todo; cada término va en <code>&lt;dt&gt;</code> y su definición justo después en <code>&lt;dd&gt;</code>.`,
@@ -13809,10 +13920,8 @@ dd { margin: 0 0 10px 16px; }`,
     { d: '3 definiciones <code>&lt;dd&gt;</code>', count: ['dl > dd', 3] },
     { d: 'Cada <code>&lt;dt&gt;</code> va seguido de su <code>&lt;dd&gt;</code>', count: ['dt + dd', 3] },
     { d: 'Sin <code>&lt;b&gt;</code> ni párrafos sueltos', none: 'b, body > p' }
-  ]
-},
-{
-  id: 'texto-con-significado', block: 'sem', title: 'Texto con significado', edit: 'html', w: 480, h: 200,
+  ]},
+{id: 'texto-con-significado', block: 'sem', title: 'Texto con significado', edit: 'html', w: 480, h: 200,
   tags: ['abbr', 'time', 'code', 'strong', 'entidades'],
   brief: `<p>Marca este aviso con las etiquetas de texto adecuadas:</p>
 <ul><li><code>UP03</code> es una abreviatura de «Unidad de Programación 3» (que salga al pasar el ratón).</li><li>La fecha debe ser legible por máquinas: <code>2026-11-20</code>.</li><li>La etiqueta <code>&lt;link&gt;</code> debe verse como código, con sus <code>&lt; &gt;</code> visibles.</li><li>El «no» es importante, no solo negrita.</li></ul>`,
@@ -13828,10 +13937,211 @@ strong { color: #b91c1c; }`,
     { d: '<code>&lt;code&gt;</code> que muestra «&lt;link&gt;»', js: (U) => U.qa('code').some((c) => c.textContent.trim() === '<link>') || 'No veo un <code> cuyo texto sea <link>' },
     { d: 'El «no» va en <code>&lt;strong&gt;</code>', js: (U) => U.qa('strong').some((s) => s.textContent.trim() === 'no') },
     { d: 'Nada de <code>&lt;b&gt;</code> ni <code>&lt;i&gt;</code>', none: 'b, i' }
+  ]},
+{
+  id: 'texto-formato', block: 'sem', title: 'Superíndices, teclas y resaltados', edit: 'html', w: 480, h: 220,
+  tags: ['sup', 'sub', 'kbd', 'mark', 'small'],
+  brief: `<p>Estos apuntes de la UP01 se escribieron sin etiquetas. Márcalos bien:</p>
+<ul><li>Los exponentes van en <strong>superíndice</strong> (escribe solo <code>10</code> y <code>20</code>, sin el <code>^</code>).</li><li>El 2 de <code>CO2</code> va en <strong>subíndice</strong>.</li><li>Cada tecla (<code>Ctrl</code> y <code>S</code>) es una <strong>entrada de teclado</strong>.</li><li>«los prefijos binarios» va <strong>resaltado</strong> como en un subrayador.</li><li>El aviso de derechos es <strong>letra pequeña</strong>.</li></ul>`,
+  hint: `<code>&lt;sup&gt;</code>, <code>&lt;sub&gt;</code>, <code>&lt;kbd&gt;</code>, <code>&lt;mark&gt;</code> y <code>&lt;small&gt;</code>. Todas son de línea: van dentro del párrafo.`,
+  css: `body { margin: 16px; line-height: 1.7; }
+kbd { font-family: monospace; border: 1px solid #94a3b8; border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; background: #f8fafc; }
+mark { background: #fde68a; }`,
+  html: `<p>1 KiB son 2^10 bytes y 1 MiB son 2^20 bytes.</p>
+<p>El sensor del aula mide el CO2 cada minuto y guarda los datos en un CSV. Guarda el archivo con Ctrl + S.</p>
+<p>Lo más importante para el examen: los prefijos binarios.</p>
+<p>© 2026 Departamento de Informática</p>`,
+  sol: `<p>1 KiB son 2<sup>10</sup> bytes y 1 MiB son 2<sup>20</sup> bytes.</p>
+<p>El sensor del aula mide el CO<sub>2</sub> cada minuto y guarda los datos en un CSV. Guarda el archivo con <kbd>Ctrl</kbd> + <kbd>S</kbd>.</p>
+<p>Lo más importante para el examen: <mark>los prefijos binarios</mark>.</p>
+<p><small>© 2026 Departamento de Informática</small></p>`,
+  checks: [
+    { d: 'Dos superíndices: 10 y 20', js: (U) => U.qa('sup').map((s) => s.textContent.trim()).join(',') === '10,20' || 'Espero dos <sup> con 10 y 20' },
+    { d: 'Sin <code>^</code> en el texto', js: (U) => !U.doc.body.textContent.includes('^') || 'Todavía hay un ^' },
+    { d: 'El 2 de CO<sub>2</sub> en subíndice', js: (U) => U.qa('sub').some((s) => s.textContent.trim() === '2') || 'No veo un <sub> con el 2' },
+    { d: 'Dos teclas con <code>&lt;kbd&gt;</code>', js: (U) => U.qa('kbd').map((k) => k.textContent.trim()).join('+') === 'Ctrl+S' || 'Espero <kbd>Ctrl</kbd> y <kbd>S</kbd>' },
+    { d: '«los prefijos binarios» resaltado', js: (U) => U.qa('mark').some((m) => m.textContent.trim() === 'los prefijos binarios') || 'No veo el <mark>' },
+    { d: 'Letra pequeña en el aviso de derechos', js: (U) => U.qa('small').some((m) => m.textContent.includes('2026')) || 'No veo el <small>' }
   ]
 },
 {
-  id: 'tabla-horario', block: 'sem', title: 'Tabla de horario', edit: 'html', w: 480, h: 240,
+  id: 'citas', block: 'sem', title: 'Citas largas, cortas y títulos de obras', edit: 'html', w: 480, h: 260,
+  tags: ['blockquote cite', 'q', 'cite'],
+  brief: `<p>Marca las citas con su etiqueta. Las comillas ya no hacen falta: las pone el navegador.</p>
+<ul><li>La misión del W3C es una <strong>cita larga</strong>, en un bloque aparte, con su fuente <code>https://www.w3.org/mission/</code> en el atributo <code>cite</code>.</li><li>La frase de Tim Berners-Lee es una <strong>cita corta</strong> dentro del párrafo.</li><li><em>Weaving the Web</em> es el <strong>título de una obra</strong>.</li></ul>`,
+  hint: `Cita larga: <code>&lt;blockquote cite="…"&gt;&lt;p&gt;…&lt;/p&gt;&lt;/blockquote&gt;</code>. Cita corta: <code>&lt;q&gt;</code>. Título: <code>&lt;cite&gt;</code> (la etiqueta, que no es lo mismo que el atributo).`,
+  css: `body { margin: 16px; line-height: 1.6; }
+blockquote { margin: 8px 0 12px; padding: 8px 16px; border-left: 4px solid #1d4ed8; background: #eff6ff; }
+blockquote p { margin: 0; }`,
+  html: `<p>Como dice el W3C en su misión:</p>
+<p>"Liderar la Web hacia su máximo potencial desarrollando protocolos y pautas que aseguren su crecimiento a largo plazo."</p>
+<p>Tim Berners-Lee lo resumió en su libro Weaving the Web: "el poder de la Web está en su universalidad".</p>`,
+  sol: `<p>Como dice el W3C en su misión:</p>
+<blockquote cite="https://www.w3.org/mission/">
+  <p>Liderar la Web hacia su máximo potencial desarrollando protocolos y pautas que aseguren su crecimiento a largo plazo.</p>
+</blockquote>
+<p>Tim Berners-Lee lo resumió en su libro <cite>Weaving the Web</cite>: <q>el poder de la Web está en su universalidad</q>.</p>`,
+  checks: [
+    { d: 'Cita larga con <code>&lt;blockquote&gt;</code>', exists: 'blockquote' },
+    { d: 'El bloque indica su fuente en el atributo <code>cite</code>', exists: 'blockquote[cite="https://www.w3.org/mission/"]' },
+    { d: 'Cita corta con <code>&lt;q&gt;</code>', js: (U) => U.qa('q').some((q) => q.textContent.includes('universalidad')) || 'No veo un <q> con la frase' },
+    { d: 'Título de la obra con <code>&lt;cite&gt;</code>', js: (U) => U.qa('cite').some((c) => c.textContent.trim() === 'Weaving the Web') || 'No veo <cite>Weaving the Web</cite>' },
+    { d: 'Sin comillas escritas a mano', js: (U) => !/["«»“”]/.test(U.doc.body.textContent) || 'Todavía hay comillas en el texto' }
+  ]
+},
+{
+  id: 'bloque-linea', block: 'sem', title: 'Bloque y línea: div y span', edit: 'html', w: 480, h: 220,
+  tags: ['div', 'span', 'class', 'bloque / línea'],
+  brief: `<p>El CSS ya tiene dos clases: <code>.aviso</code> (una caja amarilla) y <code>.resaltado</code> (texto en rojo). Solo son <strong>presentación</strong>, así que usa los elementos sin significado:</p>
+<ul><li>Agrupa el título y los dos párrafos del aviso en un elemento de <strong>bloque</strong> con la clase <code>aviso</code>.</li><li>Marca «viernes 27» con un elemento de <strong>línea</strong> con la clase <code>resaltado</code>.</li></ul>`,
+  hint: `<code>&lt;div class="aviso"&gt;</code> envuelve varios elementos; <code>&lt;span class="resaltado"&gt;</code> va dentro del párrafo, alrededor de las palabras.`,
+  css: `body { margin: 16px; }
+.aviso { padding: 10px 14px; background: #fef9c3; border: 1px solid #facc15; border-radius: 8px; }
+.aviso h2 { margin: 0 0 4px; font-size: 17px; }
+.aviso p { margin: 0; }
+.resaltado { color: #b91c1c; font-weight: 700; }`,
+  html: `<h2>Cambio de fecha</h2>
+<p>La prueba objetiva se mueve al viernes 27.</p>
+<p>El aula y la hora no cambian.</p>`,
+  sol: `<div class="aviso">
+  <h2>Cambio de fecha</h2>
+  <p>La prueba objetiva se mueve al <span class="resaltado">viernes 27</span>.</p>
+  <p>El aula y la hora no cambian.</p>
+</div>`,
+  checks: [
+    { d: 'Un <code>&lt;div class="aviso"&gt;</code> con el título y los dos párrafos', js: (U) => { const d = U.q('div.aviso'); return (d && d.querySelectorAll(':scope > h2').length === 1 && d.querySelectorAll(':scope > p').length === 2) || 'El div.aviso debe contener el h2 y los dos p'; } },
+    { d: '«viernes 27» en un <code>&lt;span class="resaltado"&gt;</code> dentro del párrafo', js: (U) => U.qa('p > span.resaltado').some((s) => s.textContent.trim() === 'viernes 27') || 'No veo el span.resaltado con «viernes 27»' },
+    { d: 'Sin etiquetas con significado para esto', none: 'strong, b, em, mark, section, article' },
+    { d: 'La caja queda igual que el objetivo', rect: '.aviso' }
+  ]
+},
+{
+  id: 'enlaces-tipos', block: 'sem', title: 'Enlaces de todo tipo', edit: 'html', w: 480, h: 220,
+  tags: ['a href', 'target=_blank', 'mailto:', 'tel:', 'download'],
+  brief: `<p>Convierte cada línea de recursos en un enlace que funcione:</p>
+<ul><li>La referencia de MDN (<code>https://developer.mozilla.org/es/docs/Web/HTML</code>) se abre en una <strong>pestaña nueva</strong>.</li><li>«Escribir a la tutora» abre el correo para <code>tutoria.dam@example.com</code>.</li><li>«Llamar a secretaría» marca el <code>+34 600 000 000</code> (en el enlace, sin espacios).</li><li>«Descargar el horario» <strong>descarga</strong> <code>horario.pdf</code> en vez de abrirlo.</li></ul>
+<p>El texto de cada enlace es lo que va antes de los dos puntos.</p>`,
+  hint: `<code>target="_blank"</code>, <code>href="mailto:…"</code>, <code>href="tel:+34…"</code> y el atributo <code>download</code>.`,
+  css: `body { margin: 16px; line-height: 1.8; }
+a { color: #1d4ed8; }`,
+  html: `<h2>Recursos</h2>
+<ul>
+  <li>Referencia de HTML: https://developer.mozilla.org/es/docs/Web/HTML</li>
+  <li>Escribir a la tutora: tutoria.dam@example.com</li>
+  <li>Llamar a secretaría: +34 600 000 000</li>
+  <li>Descargar el horario: horario.pdf</li>
+</ul>`,
+  sol: `<h2>Recursos</h2>
+<ul>
+  <li><a href="https://developer.mozilla.org/es/docs/Web/HTML" target="_blank">Referencia de HTML</a></li>
+  <li><a href="mailto:tutoria.dam@example.com">Escribir a la tutora</a></li>
+  <li><a href="tel:+34600000000">Llamar a secretaría</a></li>
+  <li><a href="horario.pdf" download>Descargar el horario</a></li>
+</ul>`,
+  checks: [
+    { d: 'Cuatro enlaces', count: ['a', 4] },
+    { d: 'MDN se abre en una pestaña nueva', exists: 'a[href="https://developer.mozilla.org/es/docs/Web/HTML"][target="_blank"]' },
+    { d: 'Enlace de correo', exists: 'a[href="mailto:tutoria.dam@example.com"]' },
+    { d: 'Enlace de teléfono sin espacios', js: (U) => U.qa('a[href^="tel:"]').some((a) => a.getAttribute('href') === 'tel:+34600000000') || 'Espero href="tel:+34600000000"' },
+    { d: 'El horario se descarga', exists: 'a[href="horario.pdf"][download]' },
+    { d: 'Los textos de los enlaces son los de la lista', js: (U) => U.qa('a').map((a) => a.textContent.trim()).join('|') === 'Referencia de HTML|Escribir a la tutora|Llamar a secretaría|Descargar el horario' || 'Algún enlace no tiene el texto indicado' }
+  ]
+},
+{
+  id: 'marcadores-indice', block: 'sem', title: 'Índice con marcadores', edit: 'html', w: 480, h: 300,
+  tags: ['id', 'href="#…"', 'aside'],
+  brief: `<p>El índice lateral no lleva a ningún sitio. Haz que cada enlace salte a su artículo y que «Volver arriba» lleve al título principal.</p>
+<ul><li>Pon un <code>id</code> a cada artículo y al <code>&lt;h1&gt;</code> (usa <code>inicio</code> para el título).</li><li>Cada enlace del índice apunta a su artículo con <code>#id</code>.</li></ul>`,
+  hint: `<code>&lt;article id="tablas"&gt;</code> y <code>&lt;a href="#tablas"&gt;</code>. El <code>id</code> no lleva espacios y no puede repetirse.`,
+  css: `body { margin: 12px; font-size: 14px; }
+h1 { font-size: 20px; margin: 0 0 8px; }
+aside { float: right; width: 140px; margin-left: 12px; padding: 8px; background: #f1f5f9; border-radius: 6px; }
+aside ul { margin: 0; padding-left: 18px; }
+article { margin-bottom: 8px; }
+article h2 { font-size: 16px; margin: 0; }
+article p { margin: 2px 0 0; }`,
+  html: `<h1>Apuntes de HTML</h1>
+<aside>
+  <ul>
+    <li><a href="#">Listas</a></li>
+    <li><a href="#">Tablas</a></li>
+    <li><a href="#">Formularios</a></li>
+  </ul>
+</aside>
+<article>
+  <h2>Listas</h2>
+  <p>Ordenadas, sin orden y de definiciones.</p>
+</article>
+<article>
+  <h2>Tablas</h2>
+  <p>Filas, celdas, cabeceras y títulos.</p>
+</article>
+<article>
+  <h2>Formularios</h2>
+  <p>Campos, etiquetas y validación.</p>
+</article>
+<p><a href="#">Volver arriba</a></p>`,
+  sol: `<h1 id="inicio">Apuntes de HTML</h1>
+<aside>
+  <ul>
+    <li><a href="#listas">Listas</a></li>
+    <li><a href="#tablas">Tablas</a></li>
+    <li><a href="#formularios">Formularios</a></li>
+  </ul>
+</aside>
+<article id="listas">
+  <h2>Listas</h2>
+  <p>Ordenadas, sin orden y de definiciones.</p>
+</article>
+<article id="tablas">
+  <h2>Tablas</h2>
+  <p>Filas, celdas, cabeceras y títulos.</p>
+</article>
+<article id="formularios">
+  <h2>Formularios</h2>
+  <p>Campos, etiquetas y validación.</p>
+</article>
+<p><a href="#inicio">Volver arriba</a></p>`,
+  checks: [
+    { d: 'Los tres artículos tienen <code>id</code>', attr: ['article', 'id'] },
+    { d: 'Cada enlace del índice lleva a su artículo', js: (U) => { const as = U.qa('aside a'), arts = U.qa('article'); if (as.length !== 3) return 'El índice debe tener 3 enlaces'; for (let i = 0; i < 3; i++) { const h = as[i].getAttribute('href') || ''; const t = h.startsWith('#') ? U.doc.getElementById(h.slice(1)) : null; if (t !== arts[i]) return '«' + as[i].textContent.trim() + '» no lleva a su artículo'; } return true; } },
+    { d: 'El título principal tiene <code>id="inicio"</code>', exists: 'h1#inicio' },
+    { d: '«Volver arriba» lleva al título', exists: 'body > p > a[href="#inicio"]' }
+  ]
+},
+{id: 'migas-de-pan', block: 'sem', title: 'Migas de pan accesibles', edit: 'html', w: 480, h: 120,
+  tags: ['nav', 'aria-label', 'ol', 'aria-current'],
+  brief: `<p>Convierte la ruta en unas <strong>migas de pan</strong> accesibles:</p>
+<ul><li>Una <code>&lt;nav&gt;</code> con <code>aria-label="Migas de pan"</code>.</li><li>Una lista ordenada (el orden importa).</li><li>El último elemento es la página actual: no es enlace y lleva <code>aria-current="page"</code>.</li></ul>`,
+  hint: `Los separadores «/» los pone el CSS con <code>li + li::before</code>: no los escribas.`,
+  css: `body { margin: 16px; font-size: 14px; }
+nav ol { list-style: none; display: flex; gap: 6px; margin: 0; padding: 0; }
+nav li + li::before { content: "/"; margin-right: 6px; color: #94a3b8; }
+nav a { color: #1d4ed8; }
+[aria-current="page"] { color: #0f172a; font-weight: 600; }`,
+  html: `<p><a href="/">Inicio</a> > <a href="/ciclos">Ciclos</a> > <a href="/ciclos/dam">DAM</a> > LMSGI</p>`,
+  sol: `<nav aria-label="Migas de pan">
+  <ol>
+    <li><a href="/">Inicio</a></li>
+    <li><a href="/ciclos">Ciclos</a></li>
+    <li><a href="/ciclos/dam">DAM</a></li>
+    <li aria-current="page">LMSGI</li>
+  </ol>
+</nav>`,
+  checks: [
+    { d: '<code>&lt;nav&gt;</code> con <code>aria-label</code>', attr: ['nav', 'aria-label'] },
+    { d: 'Lista ordenada con 4 elementos', count: ['nav ol > li', 4] },
+    { d: '3 enlaces', count: ['nav a', 3] },
+    { d: 'El último es la página actual con <code>aria-current="page"</code>', exists: 'nav ol > li:last-child[aria-current="page"], nav ol > li:last-child [aria-current="page"]' },
+    { d: 'Sin «&gt;» escritos a mano', js: (U) => !U.qa('nav ol').some((o) => o.textContent.includes('>')) }
+  ]
+}
+);
+
+/* ---- 02-html-tablas-multimedia.js ---- */
+/* ===================== BLOQUE · UP02–UP03 · TABLAS, MULTIMEDIA Y METADATOS ===================== */
+window.EXERCISES.push(
+{id: 'tabla-horario', block: 'med', title: 'Tabla de horario', edit: 'html', w: 480, h: 240,
   tags: ['table', 'caption', 'thead', 'tbody', 'th scope'],
   brief: `<p>Monta la tabla del horario de tutorías que está en el comentario. Requisitos:</p>
 <ul><li>Título de la tabla con <code>&lt;caption&gt;</code>.</li><li>Fila de cabecera dentro de <code>&lt;thead&gt;</code> con <code>scope="col"</code>.</li><li>La hora de cada fila es una cabecera de fila: <code>&lt;th scope="row"&gt;</code>.</li></ul>`,
@@ -13872,10 +14182,8 @@ tbody th { background: #e2e8f0; }`,
     { d: 'La hora es <code>&lt;th scope="row"&gt;</code>', count: ['tbody th[scope="row"]', 3] },
     { d: '9 celdas de datos', count: ['tbody td', 9] },
     { d: 'Mismo contenido que el horario', rect: 'td' }
-  ]
-},
-{
-  id: 'tabla-colspan', block: 'sem', title: 'Cabecera doble con colspan y rowspan', edit: 'html', w: 480, h: 220,
+  ]},
+{id: 'tabla-colspan', block: 'med', title: 'Cabecera doble con colspan y rowspan', edit: 'html', w: 480, h: 220,
   tags: ['colspan', 'rowspan', 'thead'],
   brief: `<p>Completa el <code>&lt;thead&gt;</code> para que la cabecera quede en <strong>dos filas</strong>: «Alumno» y «Final» ocupan las dos filas, y «1ª evaluación» abarca las columnas «Teoría» y «Práctica».</p>`,
   hint: `Primera fila: <code>Alumno</code> (rowspan 2), <code>1ª evaluación</code> (colspan 2), <code>Final</code> (rowspan 2). Segunda fila: solo <code>Teoría</code> y <code>Práctica</code>, porque las otras dos celdas ya vienen ocupadas desde arriba.`,
@@ -13915,10 +14223,51 @@ th { background: #e0e7ff; }`,
     { d: 'Dos cabeceras con <code>rowspan="2"</code>', count: ['th[rowspan="2"]', 2] },
     { d: 'La segunda fila solo tiene 2 celdas', count: ['thead > tr:nth-child(2) > th', 2] },
     { d: 'Las cabeceras quedan en su sitio', rect: 'th' }
+  ]},
+{
+  id: 'tabla-tfoot', block: 'med', title: 'Presupuesto con pie de tabla', edit: 'html', w: 480, h: 250,
+  tags: ['caption', 'thead', 'tbody', 'tfoot', 'colspan'],
+  brief: `<p>Termina la tabla del presupuesto del viaje de fin de curso:</p>
+<ul><li>Título «Viaje a Valencia» con <code>&lt;caption&gt;</code>.</li><li>La fila de cabecera, dentro de <code>&lt;thead&gt;</code>; los gastos, en <code>&lt;tbody&gt;</code>.</li><li>La fila del total va en el <strong>pie de la tabla</strong>: la celda «Total» es una cabecera que ocupa <strong>dos columnas</strong> y a su lado va <code>355 €</code>.</li></ul>`,
+  hint: `<code>&lt;tfoot&gt;&lt;tr&gt;&lt;th colspan="2"&gt;Total&lt;/th&gt;&lt;td&gt;355 €&lt;/td&gt;&lt;/tr&gt;&lt;/tfoot&gt;</code>. El <code>&lt;tfoot&gt;</code> va después del <code>&lt;tbody&gt;</code>.`,
+  css: `body { margin: 16px; }
+table { border-collapse: collapse; font-size: 14px; }
+caption { font-weight: 700; padding-bottom: 6px; }
+th, td { border: 1px solid #cbd5e1; padding: 6px 12px; text-align: left; }
+thead th { background: #e0e7ff; }
+tfoot th, tfoot td { background: #f1f5f9; font-weight: 700; }
+td:last-child { text-align: right; }`,
+  html: `<table>
+  <tr><td>Concepto</td><td>Unidades</td><td>Importe</td></tr>
+  <tr><td>Autobús</td><td>1</td><td>180 €</td></tr>
+  <tr><td>Entradas al Oceanogràfic</td><td>5</td><td>125 €</td></tr>
+  <tr><td>Comida</td><td>5</td><td>50 €</td></tr>
+  <tr><td>Total</td><td></td><td>355 €</td></tr>
+</table>`,
+  sol: `<table>
+  <caption>Viaje a Valencia</caption>
+  <thead>
+    <tr><th>Concepto</th><th>Unidades</th><th>Importe</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Autobús</td><td>1</td><td>180 €</td></tr>
+    <tr><td>Entradas al Oceanogràfic</td><td>5</td><td>125 €</td></tr>
+    <tr><td>Comida</td><td>5</td><td>50 €</td></tr>
+  </tbody>
+  <tfoot>
+    <tr><th colspan="2">Total</th><td>355 €</td></tr>
+  </tfoot>
+</table>`,
+  checks: [
+    { d: 'Título con <code>&lt;caption&gt;</code>', js: (U) => { const c = U.q('table > caption'); return (c && c.textContent.trim() === 'Viaje a Valencia') || 'Falta <caption>Viaje a Valencia</caption>'; } },
+    { d: 'Cabecera en <code>&lt;thead&gt;</code> con 3 <code>&lt;th&gt;</code>', count: ['thead > tr > th', 3] },
+    { d: 'Tres gastos en <code>&lt;tbody&gt;</code>', count: ['tbody > tr', 3] },
+    { d: 'Fila del total en <code>&lt;tfoot&gt;</code>', count: ['tfoot > tr', 1] },
+    { d: '«Total» es un <code>&lt;th colspan="2"&gt;</code>', js: (U) => U.qa('tfoot th[colspan="2"]').some((t) => t.textContent.trim() === 'Total') || 'No veo <th colspan="2">Total</th> en el pie' },
+    { d: 'Las celdas quedan en su sitio', rect: 'td' }
   ]
 },
-{
-  id: 'figura-pie', block: 'sem', title: 'Imagen con pie de foto', edit: 'html', w: 480, h: 260,
+{id: 'figura-pie', block: 'med', title: 'Imagen con pie de foto', edit: 'html', w: 480, h: 260,
   tags: ['figure', 'figcaption', 'img alt'],
   brief: `<p>Agrupa la imagen y su pie con las etiquetas pensadas para ello. La imagen necesita un texto alternativo que describa lo que se ve.</p>`,
   hint: `<code>&lt;figure&gt;</code> contiene la <code>&lt;img alt="…"&gt;</code> y un <code>&lt;figcaption&gt;</code>.`,
@@ -13939,41 +14288,288 @@ figcaption { font-size: 13px; color: #475569; margin-top: 6px; }`,
     { d: 'La imagen tiene <code>alt</code> descriptivo', attr: ['img', 'alt'] },
     { d: 'Pie con <code>&lt;figcaption&gt;</code>', exists: 'figure > figcaption' },
     { d: 'Sin <code>&lt;div&gt;</code> envolvente', none: 'div' }
+  ]},
+{
+  id: 'imagen-enlace', block: 'med', title: 'Miniaturas que enlazan', edit: 'html', w: 480, h: 170,
+  tags: ['img', 'alt', 'width / height', 'a > img'],
+  brief: `<p>Galería de fotos de la excursión. Cada miniatura:</p>
+<ul><li>Lleva <code>width="120"</code> y <code>height="70"</code> para que el navegador reserve su sitio antes de cargarla.</li><li>Tiene un <code>alt</code> que describe <strong>esa</strong> foto (no vale el mismo texto para las tres).</li><li>Es un enlace a la imagen grande (el mismo <code>src</code>) que se abre en una pestaña nueva.</li></ul>`,
+  hint: `<code>&lt;a href="…" target="_blank"&gt;&lt;img src="…" alt="…" width="120" height="70"&gt;&lt;/a&gt;</code>. Copia el <code>src</code> de cada imagen al <code>href</code> de su enlace.`,
+  css: `body { margin: 16px; }
+p { margin: 0 0 8px; }
+a { display: inline-block; margin-right: 8px; }
+img { border-radius: 6px; vertical-align: top; }`,
+  html: `<p>Excursión al Montgó</p>
+<img src="${IMG}">
+<img src="${IMG}">
+<img src="${IMG}">`,
+  sol: `<p>Excursión al Montgó</p>
+<a href="${IMG}" target="_blank"><img src="${IMG}" alt="Grupo de clase en la salida del sendero" width="120" height="70"></a>
+<a href="${IMG}" target="_blank"><img src="${IMG}" alt="Vista de Dénia desde la cumbre" width="120" height="70"></a>
+<a href="${IMG}" target="_blank"><img src="${IMG}" alt="Comida en el merendero del parque" width="120" height="70"></a>`,
+  checks: [
+    { d: 'Tres imágenes dentro de enlaces', count: ['a > img', 3] },
+    { d: 'Todas con <code>width="120"</code> y <code>height="70"</code>', count: ['img[width="120"][height="70"]', 3] },
+    { d: 'Todas con <code>alt</code>', attr: ['img', 'alt'] },
+    { d: 'Cada <code>alt</code> es distinto', js: (U) => new Set(U.qa('img').map((i) => (i.getAttribute('alt') || '').trim().toLowerCase())).size === 3 || 'Hay textos alternativos repetidos' },
+    { d: 'Los enlaces llevan a la imagen y se abren en otra pestaña', js: (U) => U.qa('a').length === 3 && U.qa('a').every((a) => a.target === '_blank' && a.querySelector('img') && a.getAttribute('href') === a.querySelector('img').getAttribute('src')) || 'Algún enlace no lleva a su imagen o no tiene target="_blank"' }
   ]
 },
 {
-  id: 'migas-de-pan', block: 'sem', title: 'Migas de pan accesibles', edit: 'html', w: 480, h: 120,
-  tags: ['nav', 'aria-label', 'ol', 'aria-current'],
-  brief: `<p>Convierte la ruta en unas <strong>migas de pan</strong> accesibles:</p>
-<ul><li>Una <code>&lt;nav&gt;</code> con <code>aria-label="Migas de pan"</code>.</li><li>Una lista ordenada (el orden importa).</li><li>El último elemento es la página actual: no es enlace y lleva <code>aria-current="page"</code>.</li></ul>`,
-  hint: `Los separadores «/» los pone el CSS con <code>li + li::before</code>: no los escribas.`,
-  css: `body { margin: 16px; font-size: 14px; }
-nav ol { list-style: none; display: flex; gap: 6px; margin: 0; padding: 0; }
-nav li + li::before { content: "/"; margin-right: 6px; color: #94a3b8; }
-nav a { color: #1d4ed8; }
-[aria-current="page"] { color: #0f172a; font-weight: 600; }`,
-  html: `<p><a href="/">Inicio</a> > <a href="/ciclos">Ciclos</a> > <a href="/ciclos/dam">DAM</a> > LMSGI</p>`,
-  sol: `<nav aria-label="Migas de pan">
-  <ol>
-    <li><a href="/">Inicio</a></li>
-    <li><a href="/ciclos">Ciclos</a></li>
-    <li><a href="/ciclos/dam">DAM</a></li>
-    <li aria-current="page">LMSGI</li>
-  </ol>
-</nav>`,
+  id: 'multimedia', block: 'med', title: 'Vídeo y audio con alternativas', edit: 'html', w: 480, h: 330,
+  tags: ['video controls', 'source', 'audio', 'texto alternativo'],
+  brief: `<p>La página de la UP06 enlaza un vídeo y un pódcast, pero no se pueden reproducir. Incrústalos:</p>
+<ul><li>Un <code>&lt;video&gt;</code> de <code>320</code> de ancho con <strong>controles</strong> y dos formatos: <code>media/flexbox.webm</code> y <code>media/flexbox.mp4</code>, cada uno con su <code>type</code>.</li><li>Dentro del vídeo, un texto para navegadores que no lo reproduzcan.</li><li>Un <code>&lt;audio&gt;</code> con controles para <code>media/podcast-up06.mp3</code>.</li></ul>
+<p class="muted">La vista previa no encuentra los archivos: lo que importa es el código.</p>`,
+  hint: `<code>&lt;video width="320" controls&gt;&lt;source src="…webm" type="video/webm"&gt;&lt;source src="…mp4" type="video/mp4"&gt;Tu navegador…&lt;/video&gt;</code>. El audio funciona igual, con <code>type="audio/mpeg"</code> o con <code>src</code> directamente.`,
+  css: `body { margin: 16px; }
+h2 { font-size: 17px; margin: 0 0 6px; }
+video { display: block; background: #0f172a; margin-bottom: 12px; }
+audio { display: block; }`,
+  html: `<h2>Flexbox en 10 minutos</h2>
+<p><a href="media/flexbox.mp4">Ver el vídeo</a></p>
+<h2>Pódcast de la UP06</h2>
+<p><a href="media/podcast-up06.mp3">Escuchar el pódcast</a></p>`,
+  sol: `<h2>Flexbox en 10 minutos</h2>
+<video width="320" controls>
+  <source src="media/flexbox.webm" type="video/webm">
+  <source src="media/flexbox.mp4" type="video/mp4">
+  Tu navegador no puede reproducir el vídeo. <a href="media/flexbox.mp4">Descárgalo aquí</a>.
+</video>
+<h2>Pódcast de la UP06</h2>
+<audio controls src="media/podcast-up06.mp3"></audio>`,
   checks: [
-    { d: '<code>&lt;nav&gt;</code> con <code>aria-label</code>', attr: ['nav', 'aria-label'] },
-    { d: 'Lista ordenada con 4 elementos', count: ['nav ol > li', 4] },
-    { d: '3 enlaces', count: ['nav a', 3] },
-    { d: 'El último es la página actual con <code>aria-current="page"</code>', exists: 'nav ol > li:last-child[aria-current="page"], nav ol > li:last-child [aria-current="page"]' },
-    { d: 'Sin «&gt;» escritos a mano', js: (U) => !U.qa('nav ol').some((o) => o.textContent.includes('>')) }
+    { d: '<code>&lt;video&gt;</code> con controles y 320 de ancho', exists: 'video[controls][width="320"]' },
+    { d: 'Dos <code>&lt;source&gt;</code> con su <code>type</code>', js: (U) => { const s = U.qa('video > source'); const t = s.map((x) => x.getAttribute('type')).join(','); return (s.length === 2 && t === 'video/webm,video/mp4' && s[0].getAttribute('src') === 'media/flexbox.webm' && s[1].getAttribute('src') === 'media/flexbox.mp4') || 'Espero los dos source (webm y mp4) con src y type'; } },
+    { d: 'Texto alternativo dentro del vídeo', js: (U) => { const v = U.q('video'); return (v && v.textContent.trim().length > 10) || 'Añade un texto dentro de <video>'; } },
+    { d: '<code>&lt;audio&gt;</code> con controles para el pódcast', js: (U) => { const a = U.q('audio[controls]'); if (!a) return 'No veo <audio controls>'; const src = a.getAttribute('src') || (a.querySelector('source') || { getAttribute: () => '' }).getAttribute('src'); return src === 'media/podcast-up06.mp3' || 'El audio no apunta a media/podcast-up06.mp3'; } },
+    { d: 'Ya no hacen falta los enlaces sueltos', none: 'body > p > a' }
+  ]
+},
+{
+  id: 'iframe-limpio', block: 'med', title: 'Limpiar el código de YouTube y Maps', edit: 'html', w: 480, h: 420,
+  tags: ['iframe', 'title', 'validación W3C', 'sin style'],
+  brief: `<p>Has pegado los códigos de inserción de YouTube y Google Maps, pero el validador del W3C protesta y en la práctica no se admiten estilos dentro del HTML. Déjalos limpios:</p>
+<ul><li>Quita <code>frameborder</code> (obsoleto) y <code>style</code> (los estilos van en el CSS).</li><li>Añade a cada <code>&lt;iframe&gt;</code> un <code>title</code> que diga qué contiene (lo leen los lectores de pantalla).</li><li>Conserva el resto: <code>src</code>, <code>width</code>, <code>height</code> y <code>allowfullscreen</code>.</li></ul>
+<p class="muted">La vista previa no carga contenido externo.</p>`,
+  hint: `Un atributo booleano como <code>allowfullscreen</code> no necesita valor. Los demás atributos se quedan tal cual.`,
+  css: `body { margin: 16px; }
+h2 { font-size: 16px; margin: 0 0 6px; }
+iframe { display: block; border: 2px dashed #94a3b8; background: #f1f5f9; margin-bottom: 12px; }`,
+  html: `<h2>Cómo funciona Flexbox</h2>
+<iframe width="320" height="180" src="https://www.youtube.com/embed/abc123XYZ00" frameborder="0" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+<h2>Dónde está el instituto</h2>
+<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12" width="320" height="140" style="border:0;" allowfullscreen="" loading="lazy"></iframe>`,
+  sol: `<h2>Cómo funciona Flexbox</h2>
+<iframe width="320" height="180" src="https://www.youtube.com/embed/abc123XYZ00" title="Vídeo: cómo funciona Flexbox" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+<h2>Dónde está el instituto</h2>
+<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12" width="320" height="140" title="Mapa: ubicación del IES Severo Ochoa" allowfullscreen loading="lazy"></iframe>`,
+  checks: [
+    { d: 'Siguen los dos <code>&lt;iframe&gt;</code>', count: ['iframe', 2] },
+    { d: 'Sin <code>frameborder</code> ni <code>style</code>', none: 'iframe[frameborder], iframe[style], [style]' },
+    { d: 'Cada <code>&lt;iframe&gt;</code> tiene <code>title</code>', attr: ['iframe', 'title'] },
+    { d: 'Los <code>title</code> son distintos', js: (U) => { const t = U.qa('iframe').map((i) => (i.title || '').trim()); return t[0] !== t[1] || 'Los dos title son iguales'; } },
+    { d: 'Se conservan <code>src</code>, <code>width</code> y <code>height</code>', js: (U, S) => U.qa('iframe').length === 2 && U.qa('iframe').every((f, i) => { const s = S.qa('iframe')[i]; return ['src', 'width', 'height'].every((a) => f.getAttribute(a) === s.getAttribute(a)); }) || 'Has cambiado algún src, width o height' },
+    { d: 'Ambos permiten pantalla completa', count: ['iframe[allowfullscreen]', 2] }
+  ]
+},
+{
+  id: 'head-metadatos', block: 'med', title: 'Metainformación en el head', edit: 'html', w: 480, h: 150,
+  tags: ['meta charset', 'viewport', 'description', 'author', 'favicon'],
+  brief: `<p>Esta vez escribes el documento entero. Completa el <code>&lt;head&gt;</code>:</p>
+<ul><li>Codificación <code>UTF-8</code>.</li><li>Metaetiqueta <code>viewport</code> con el ancho igual al del dispositivo y escala inicial 1.</li><li>Un <code>&lt;title&gt;</code> que describa la página (no «Documento»).</li><li>Descripción y autor con sus <code>&lt;meta name="…"&gt;</code>.</li><li>Favicon <code>favicon.ico</code> con una ruta relativa.</li></ul>
+<p class="muted">En la vista previa solo se ve el <code>&lt;body&gt;</code>.</p>`,
+  hint: `<code>&lt;meta charset="UTF-8"&gt;</code>, <code>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</code>, <code>&lt;meta name="description" content="…"&gt;</code>, <code>&lt;meta name="author" content="…"&gt;</code> y <code>&lt;link rel="icon" href="favicon.ico"&gt;</code>. Emmet <code>!</code> genera casi todo.`,
+  css: `body { margin: 16px; }
+h1 { font-size: 20px; margin: 0 0 6px; }
+p { margin: 0; }`,
+  html: `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>Documento</title>
+</head>
+<body>
+  <h1>Club de robótica del IES Severo Ochoa</h1>
+  <p>Nos vemos los jueves por la tarde en el aula 21.</p>
+</body>
+</html>`,
+  sol: `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Club de robótica · IES Severo Ochoa</title>
+  <meta name="description" content="Horario, proyectos y cómo apuntarse al club de robótica del IES Severo Ochoa.">
+  <meta name="author" content="Departamento de Informática">
+  <link rel="icon" href="favicon.ico">
+</head>
+<body>
+  <h1>Club de robótica del IES Severo Ochoa</h1>
+  <p>Nos vemos los jueves por la tarde en el aula 21.</p>
+</body>
+</html>`,
+  checks: [
+    { d: 'Empieza por <code>&lt;!DOCTYPE html&gt;</code> y el idioma es español', js: (U, S, src) => (/^\s*<!doctype html>/i.test(src.html) && /<html[^>]*\blang=["']?es\b/i.test(src.html)) || 'Revisa el doctype y <html lang="es">' },
+    { d: 'Codificación UTF-8', src: ['html', /<meta\s+charset=["']?utf-8["']?\s*\/?>/i], msg: 'Falta <meta charset="UTF-8">' },
+    { d: 'Viewport con <code>width=device-width</code> e <code>initial-scale=1</code>', js: (U) => { const m = U.q('meta[name="viewport"]'); const c = m ? m.content.replace(/\s/g, '') : ''; return (/width=device-width/.test(c) && /initial-scale=1(\.0)?(,|$)/.test(c)) || 'Revisa el content del viewport'; } },
+    { d: 'Título descriptivo', js: (U) => { const t = U.q('title'); const s = t ? t.textContent.trim() : ''; return (s.length >= 10 && !/^documento$/i.test(s)) || 'El <title> debe describir la página'; } },
+    { d: 'Descripción y autor', js: (U) => ['description', 'author'].every((n) => { const m = U.q('meta[name="' + n + '"]'); return m && m.content.trim().length > 0; }) || 'Falta <meta name="description"> o <meta name="author"> con content' },
+    { d: 'Favicon con ruta relativa', exists: 'link[rel~="icon"][href="favicon.ico"]' }
+  ]
+},
+{
+  id: 'seo-encabezados', block: 'med', title: 'HTML pensado para el SEO', edit: 'html', w: 480, h: 400,
+  tags: ['un solo h1', 'jerarquía', 'alt', 'texto de enlace'],
+  brief: `<p>Los buscadores (y los lectores de pantalla) entienden la página por su estructura. Corrige estos fallos:</p>
+<ul><li>Solo puede haber <strong>un</strong> <code>&lt;h1&gt;</code>. «Presentación» es un apartado.</li><li>Los niveles no se saltan: después de un <code>h2</code> viene un <code>h3</code>, no un <code>h4</code>.</li><li>«Horario de tutorías» es un apartado, aunque ahora esté puesto como párrafo en negrita.</li><li>La imagen necesita texto alternativo.</li><li>«pincha aquí» no dice nada: el texto del enlace debe explicar adónde lleva.</li></ul>`,
+  hint: `Estructura final: <code>h1</code> → <code>h2</code> Presentación → <code>h3</code> Requisitos → <code>h2</code> Horario. El enlace puede quedar como «…<a>información sobre la matrícula</a>».`,
+  css: `body { margin: 16px; font-size: 14px; }
+h1 { font-size: 22px; margin: 0 0 8px; }
+h2 { font-size: 18px; margin: 12px 0 4px; }
+h3 { font-size: 15px; margin: 8px 0 4px; }
+p { margin: 0 0 6px; }
+img { width: 160px; display: block; }`,
+  html: `<h1>Ciclo de DAM semipresencial</h1>
+<h1>Presentación</h1>
+<p>Dos cursos para aprender a desarrollar aplicaciones compaginándolo con el trabajo.</p>
+<h4>Requisitos de acceso</h4>
+<p>Bachillerato, un ciclo de grado medio o la prueba de acceso.</p>
+<p><b>Horario de tutorías</b></p>
+<p>Tutorías colectivas de lunes a jueves, de 16:00 a 21:00.</p>
+<img src="${IMG}">
+<p>Para matricularte, <a href="matricula.html">pincha aquí</a>.</p>`,
+  sol: `<h1>Ciclo de DAM semipresencial</h1>
+<h2>Presentación</h2>
+<p>Dos cursos para aprender a desarrollar aplicaciones compaginándolo con el trabajo.</p>
+<h3>Requisitos de acceso</h3>
+<p>Bachillerato, un ciclo de grado medio o la prueba de acceso.</p>
+<h2>Horario de tutorías</h2>
+<p>Tutorías colectivas de lunes a jueves, de 16:00 a 21:00.</p>
+<img src="${IMG}" alt="Alumnado del ciclo en una tutoría colectiva">
+<p>Para matricularte, consulta la <a href="matricula.html">información sobre la matrícula</a>.</p>`,
+  checks: [
+    { d: 'Un único <code>&lt;h1&gt;</code>', count: ['h1', 1] },
+    { d: 'Dos apartados <code>&lt;h2&gt;</code> y un <code>&lt;h3&gt;</code>', js: (U) => (U.qa('h2').length === 2 && U.qa('h3').length === 1 && U.qa('h4, h5, h6').length === 0) || 'Espero 2 h2, 1 h3 y ningún h4' },
+    { d: 'Los niveles de encabezado no se saltan', js: (U) => { let prev = 0; for (const h of U.qa('h1, h2, h3, h4, h5, h6')) { const n = +h.tagName[1]; if (n > prev + 1) return 'Saltas de h' + prev + ' a h' + n; prev = n; } return true; } },
+    { d: '«Horario de tutorías» es un encabezado, sin <code>&lt;b&gt;</code>', js: (U) => (!U.q('b') && U.qa('h2').some((h) => h.textContent.trim() === 'Horario de tutorías')) || 'Debe ser un <h2> y sin <b>' },
+    { d: 'La imagen tiene <code>alt</code>', attr: ['img', 'alt'] },
+    { d: 'El texto del enlace explica adónde lleva', js: (U) => U.qa('a').every((a) => a.textContent.trim().length >= 12 && !/aqu[ií]|pincha|clic/i.test(a.textContent)) || 'El texto del enlace no describe el destino' }
+  ]
+},
+{
+  id: 'ficha-tecnica', block: 'med', title: 'Ficha técnica completa', edit: 'html', w: 480, h: 560,
+  tags: ['h1/h2', 'img', 'a', 'table', 'ul', 'footer'],
+  brief: `<p>Como en la actividad 1 de la UP02, monta la ficha técnica con los datos del comentario:</p>
+<ol><li><code>&lt;h1&gt;</code> con el título y <code>&lt;h2&gt;</code> con el género.</li><li>Justo debajo, la imagen de portada con su <code>alt</code>.</li><li>Un párrafo con la trama y otro con el enlace «Leer más en Wikipedia».</li><li><code>&lt;h2&gt;</code> «Personajes principales» y una tabla con <code>&lt;thead&gt;</code> y <code>&lt;tbody&gt;</code> de tres columnas.</li><li><code>&lt;h2&gt;</code> «Características» y una lista sin orden.</li><li>Un <code>&lt;footer&gt;</code> con el enlace a la Biblioteca Virtual Cervantes.</li></ol>`,
+  hint: `Emmet te ahorra la tabla: <code>table&gt;thead&gt;tr&gt;th*3^^tbody&gt;tr*3&gt;td*3</code> y pulsa <kbd>Tab</kbd>. En <code>href</code> va la URL completa, con <code>https://</code>.`,
+  css: `body { margin: 16px; font-size: 14px; }
+h1 { font-size: 22px; margin: 0; }
+h2 { font-size: 16px; margin: 12px 0 6px; }
+h1 + h2 { margin-top: 0; color: #64748b; font-weight: 500; }
+img { width: 200px; display: block; margin: 6px 0; border-radius: 6px; }
+p { margin: 0 0 6px; }
+table { border-collapse: collapse; }
+th, td { border: 1px solid #cbd5e1; padding: 4px 8px; text-align: left; }
+thead th { background: #f1f5f9; }
+ul { margin: 0; }
+footer { margin-top: 10px; font-size: 13px; }`,
+  html: `<\!--
+Título: Don Quijote de la Mancha
+Género: Novela
+Portada: ${IMG}
+Trama: Un hidalgo enloquece leyendo libros de caballerías y sale a recorrer La Mancha como caballero andante, acompañado de su escudero.
+Wikipedia: https://es.wikipedia.org/wiki/Don_Quijote_de_la_Mancha
+
+Personajes (Personaje · Rol · Rasgo):
+  Don Quijote · Protagonista · Idealista
+  Sancho Panza · Escudero · Práctico
+  Dulcinea · Dama soñada · Idealizada
+
+Características:
+  Publicada en dos partes (1605 y 1615)
+  Parodia de los libros de caballerías
+  Considerada la primera novela moderna
+
+Pie: Leer la obra completa en https://www.cervantesvirtual.com/
+-->
+`,
+  sol: `<h1>Don Quijote de la Mancha</h1>
+<h2>Novela</h2>
+<img src="${IMG}" alt="Portada de Don Quijote de la Mancha">
+<p>Un hidalgo enloquece leyendo libros de caballerías y sale a recorrer La Mancha como caballero andante, acompañado de su escudero.</p>
+<p><a href="https://es.wikipedia.org/wiki/Don_Quijote_de_la_Mancha">Leer más en Wikipedia</a></p>
+<h2>Personajes principales</h2>
+<table>
+  <thead>
+    <tr><th>Personaje</th><th>Rol</th><th>Rasgo</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Don Quijote</td><td>Protagonista</td><td>Idealista</td></tr>
+    <tr><td>Sancho Panza</td><td>Escudero</td><td>Práctico</td></tr>
+    <tr><td>Dulcinea</td><td>Dama soñada</td><td>Idealizada</td></tr>
+  </tbody>
+</table>
+<h2>Características</h2>
+<ul>
+  <li>Publicada en dos partes (1605 y 1615)</li>
+  <li>Parodia de los libros de caballerías</li>
+  <li>Considerada la primera novela moderna</li>
+</ul>
+<footer>
+  <p><a href="https://www.cervantesvirtual.com/">Leer la obra completa en la Biblioteca Virtual Cervantes</a></p>
+</footer>`,
+  checks: [
+    { d: '<code>&lt;h1&gt;</code> con el título seguido del <code>&lt;h2&gt;</code> del género', js: (U) => { const h = U.q('h1 + h2'); return (h && U.q('h1').textContent.trim() === 'Don Quijote de la Mancha' && h.textContent.trim() === 'Novela') || 'Revisa el h1 y el h2 que va justo detrás'; } },
+    { d: 'Imagen justo debajo del género, con <code>alt</code>', exists: 'h1 + h2 + img[alt]:not([alt=""])' },
+    { d: 'Enlace «Leer más en Wikipedia» con la URL completa', js: (U) => U.qa('a[href="https://es.wikipedia.org/wiki/Don_Quijote_de_la_Mancha"]').some((a) => a.textContent.trim() === 'Leer más en Wikipedia') || 'No veo el enlace a Wikipedia con ese texto' },
+    { d: 'Tabla con 3 cabeceras en <code>&lt;thead&gt;</code>', count: ['table > thead > tr > th', 3] },
+    { d: 'Tres personajes en <code>&lt;tbody&gt;</code> (9 celdas)', count: ['table > tbody > tr > td', 9] },
+    { d: 'Características en una lista sin orden', count: ['ul > li', 3] },
+    { d: 'Pie con el enlace a la Biblioteca Virtual Cervantes', exists: 'footer a[href^="https://www.cervantesvirtual.com"]' },
+    { d: 'Tres encabezados <code>&lt;h2&gt;</code>', count: ['h2', 3] }
   ]
 }
 );
 
-/* ---- 02-formularios.js ---- */
-/* ===================== BLOQUE 2 · FORMULARIOS ===================== */
+/* ---- 03-formularios.js ---- */
+/* ===================== BLOQUE · UP02–UP03 · FORMULARIOS ===================== */
 window.EXERCISES.push(
+{
+  id: 'form-suscripcion', block: 'form', title: 'Formulario de suscripción', edit: 'html', w: 480, h: 190,
+  tags: ['form action/method', 'label for', 'type=email', 'name'],
+  brief: `<p>Como en la actividad 2 de la UP02, haz que este formulario funcione de verdad:</p>
+<ul><li>Envía por <code>post</code> a <code>https://old-butterfly-esp.contry-1990.workers.dev/api/suscribir</code>.</li><li>La etiqueta «Tu email:» está vinculada al campo, que tiene <code>id="emailNoticias"</code>.</li><li>El campo es de tipo correo, se llama <code>user_email</code> (si no, el servidor no lo reconoce) y tiene un texto de ejemplo.</li><li>Botón de envío con <code>&lt;button&gt;</code> y el texto «Suscribirme».</li></ul>`,
+  hint: `<code>&lt;form action="…" method="post"&gt;</code>, <code>&lt;label for="emailNoticias"&gt;</code> y <code>&lt;input type="email" id="emailNoticias" name="user_email" placeholder="…"&gt;</code>. Haz clic en «Tu email:» en la vista previa: si se activa el campo, está bien vinculado.`,
+  css: `body { margin: 16px; font-size: 14px; }
+h2 { font-size: 18px; margin: 0 0 8px; }
+form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+input { font: inherit; padding: 6px 8px; border: 1px solid #94a3b8; border-radius: 6px; }
+button { font: inherit; padding: 6px 14px; background: #1d4ed8; color: #fff; border: 0; border-radius: 6px; font-weight: 600; }`,
+  html: `<section>
+  <h2>¡Recibe novedades!</h2>
+  <form>
+    Tu email:
+    <input>
+    <input type="submit">
+  </form>
+</section>`,
+  sol: `<section>
+  <h2>¡Recibe novedades!</h2>
+  <form action="https://old-butterfly-esp.contry-1990.workers.dev/api/suscribir" method="post">
+    <label for="emailNoticias">Tu email:</label>
+    <input type="email" id="emailNoticias" name="user_email" placeholder="nombre@ejemplo.com">
+    <button type="submit">Suscribirme</button>
+  </form>
+</section>`,
+  checks: [
+    { d: 'Envía por POST a la dirección del servicio', exists: 'form[method="post" i][action="https://old-butterfly-esp.contry-1990.workers.dev/api/suscribir"]' },
+    { d: 'Campo de correo con <code>id="emailNoticias"</code> y <code>name="user_email"</code>', exists: 'input#emailNoticias[type="email"][name="user_email"]' },
+    { d: '«Tu email:» es un <code>&lt;label&gt;</code> vinculado al campo', js: (U) => { const i = U.q('#emailNoticias'); return (i && i.labels && [...i.labels].some((l) => l.textContent.trim() === 'Tu email:')) || 'El label «Tu email:» no está vinculado al campo'; } },
+    { d: 'El campo tiene <code>placeholder</code>', attr: ['input[type="email"]', 'placeholder'] },
+    { d: 'Botón «Suscribirme»', js: (U) => U.qa('button[type="submit"], button:not([type])').some((b) => b.textContent.trim() === 'Suscribirme') || 'No veo <button type="submit">Suscribirme</button>' },
+    { d: 'Sin <code>&lt;input type="submit"&gt;</code>', none: 'input[type="submit"]' }
+  ]
+},
 {
   id: 'form-login', block: 'form', title: 'Formulario de acceso', edit: 'html', w: 480, h: 260,
   tags: ['label for', 'type=email', 'type=password', 'required'],
@@ -14006,10 +14602,8 @@ button { font: inherit; margin-top: 8px; padding: 8px; background: #1d4ed8; colo
     { d: 'Los dos campos son <code>required</code>', count: ['input[required]', 2] },
     { d: 'Todos los <code>&lt;input&gt;</code> tienen <code>name</code>', attr: ['input', 'name'] },
     { d: 'Botón <code>&lt;button type="submit"&gt;</code>', exists: 'button[type="submit"]' }
-  ]
-},
-{
-  id: 'form-radios', block: 'form', title: 'Radios y casillas agrupados', edit: 'html', w: 480, h: 220,
+  ]},
+{id: 'form-radios', block: 'form', title: 'Radios y casillas agrupados', edit: 'html', w: 480, h: 220,
   tags: ['fieldset', 'legend', 'radio', 'checkbox', 'name/value'],
   brief: `<p>Agrupa las opciones con <code>&lt;fieldset&gt;</code> y <code>&lt;legend&gt;</code>:</p>
 <ul><li><strong>Turno</strong>: dos radios que se excluyan entre sí; «Mañana» marcado por defecto.</li><li><strong>Módulos</strong>: tres casillas que comparten <code>name</code>.</li><li>Cada opción con su <code>&lt;label&gt;</code> y un <code>value</code>.</li></ul>`,
@@ -14052,10 +14646,55 @@ label { margin-right: 12px; }`,
     { d: '3 casillas con el mismo <code>name</code>', js: (U) => { const r = U.qa('input[type="checkbox"]'); return (r.length === 3 && r[0].name !== '' && r.every((x) => x.name === r[0].name)) || 'Necesito 3 checkbox con el mismo name'; } },
     { d: 'Todas las opciones tienen <code>value</code>', attr: ['input', 'value'] },
     { d: 'Todas las opciones tienen <code>&lt;label&gt;</code>', labels: true }
+  ]},
+{
+  id: 'form-tipos', block: 'form', title: 'Cada dato con su tipo de campo', edit: 'html', w: 480, h: 420,
+  tags: ['date', 'time', 'url', 'range', 'color', 'file'],
+  brief: `<p>Encuesta de inicio de curso. Todos los campos son <code>text</code>: cambia cada uno al <code>type</code> que le corresponde para que el navegador muestre el control adecuado y valide solo.</p>
+<ul><li><strong>Fecha de nacimiento</strong>: un selector de fecha.</li><li><strong>Hora preferida de tutoría</strong>: un selector de hora.</li><li><strong>Tu portfolio</strong>: una dirección web.</li><li><strong>Nivel de HTML</strong>: un deslizador de 0 a 10.</li><li><strong>Color del perfil</strong>: un selector de color.</li><li><strong>Foto</strong>: subir un archivo que sea una imagen.</li></ul>`,
+  hint: `<code>date</code>, <code>time</code>, <code>url</code>, <code>range</code> (con <code>min</code> y <code>max</code>), <code>color</code> y <code>file</code> con <code>accept="image/*"</code>.`,
+  css: FORM_CSS,
+  html: `<form>
+  <label for="nac">Fecha de nacimiento</label>
+  <input type="text" id="nac" name="nac">
+  <label for="hora">Hora preferida de tutoría</label>
+  <input type="text" id="hora" name="hora">
+  <label for="web">Tu portfolio</label>
+  <input type="text" id="web" name="web">
+  <label for="nivel">Nivel de HTML (0-10)</label>
+  <input type="text" id="nivel" name="nivel">
+  <label for="color">Color del perfil</label>
+  <input type="text" id="color" name="color">
+  <label for="foto">Foto</label>
+  <input type="text" id="foto" name="foto">
+  <button type="submit">Enviar</button>
+</form>`,
+  sol: `<form>
+  <label for="nac">Fecha de nacimiento</label>
+  <input type="date" id="nac" name="nac">
+  <label for="hora">Hora preferida de tutoría</label>
+  <input type="time" id="hora" name="hora">
+  <label for="web">Tu portfolio</label>
+  <input type="url" id="web" name="web">
+  <label for="nivel">Nivel de HTML (0-10)</label>
+  <input type="range" id="nivel" name="nivel" min="0" max="10">
+  <label for="color">Color del perfil</label>
+  <input type="color" id="color" name="color">
+  <label for="foto">Foto</label>
+  <input type="file" id="foto" name="foto" accept="image/*">
+  <button type="submit">Enviar</button>
+</form>`,
+  checks: [
+    { d: 'Fecha de nacimiento', exists: 'input#nac[type="date"]' },
+    { d: 'Hora de tutoría', exists: 'input#hora[type="time"]' },
+    { d: 'Portfolio', exists: 'input#web[type="url"]' },
+    { d: 'Nivel: deslizador de 0 a 10', exists: 'input#nivel[type="range"][min="0"][max="10"]' },
+    { d: 'Color del perfil', exists: 'input#color[type="color"]' },
+    { d: 'Foto: solo imágenes', js: (U) => { const f = U.q('input#foto[type="file"]'); return (f && /image\//.test(f.accept)) || 'Espero type="file" con accept de imágenes'; } },
+    { d: 'Ningún campo de texto', none: 'input[type="text"], input:not([type])' }
   ]
 },
-{
-  id: 'form-registro', block: 'form', title: 'Registro con validación HTML5', edit: 'html', w: 480, h: 470,
+{id: 'form-registro', block: 'form', title: 'Registro con validación HTML5', edit: 'html', w: 480, h: 470,
   tags: ['number min/max', 'tel pattern', 'select', 'textarea', 'required'],
   brief: `<p>Todos los campos son de texto. Elige el tipo correcto y añade la validación:</p>
 <ul><li><strong>Nombre</strong> obligatorio.</li><li><strong>Edad</strong> numérica entre 16 y 99.</li><li><strong>Teléfono</strong> de exactamente 9 dígitos (usa <code>pattern</code>).</li><li><strong>Ciclo</strong>: desplegable con DAM, DAW y ASIR.</li><li><strong>Comentarios</strong>: texto de varias líneas.</li><li>Casilla obligatoria «Acepto la política de privacidad».</li></ul>`,
@@ -14102,10 +14741,162 @@ label { margin-right: 12px; }`,
     { d: 'Comentarios es un <code>&lt;textarea&gt;</code>', exists: 'textarea#coment' },
     { d: 'Casilla de aceptación obligatoria', exists: 'input[type="checkbox"][required]' },
     { d: 'Todos los campos tienen <code>&lt;label&gt;</code>', labels: true }
+  ]},
+{
+  id: 'form-patrones', block: 'form', title: 'Validar con patrones', edit: 'html', w: 480, h: 280,
+  tags: ['pattern', 'expresiones regulares', 'title', 'required'],
+  brief: `<p>Añade un <code>pattern</code> a cada campo, todos obligatorios, y un <code>title</code> que explique el formato (el navegador lo muestra si el dato no vale):</p>
+<ul><li><strong>Código postal</strong>: exactamente 5 cifras (<code>03203</code>).</li><li><strong>DNI</strong>: 8 cifras y una letra mayúscula (<code>12345678Z</code>).</li><li><strong>Usuario de Aules</strong>: de 3 a 12 caracteres, solo letras minúsculas y cifras (<code>ana23</code>).</li></ul>`,
+  hint: `Una cifra es <code>[0-9]</code> (o <code>\\d</code>); <code>{5}</code> repite exactamente 5 veces y <code>{3,12}</code> entre 3 y 12. En <code>pattern</code> no hace falta <code>^</code> ni <code>$</code>: el valor entero tiene que encajar.`,
+  css: FORM_CSS,
+  html: `<form>
+  <label for="cp">Código postal</label>
+  <input type="text" id="cp" name="cp">
+  <label for="dni">DNI</label>
+  <input type="text" id="dni" name="dni">
+  <label for="usuario">Usuario de Aules</label>
+  <input type="text" id="usuario" name="usuario">
+  <button type="submit">Comprobar</button>
+</form>`,
+  sol: `<form>
+  <label for="cp">Código postal</label>
+  <input type="text" id="cp" name="cp" pattern="[0-9]{5}" title="5 cifras, por ejemplo 03203" required>
+  <label for="dni">DNI</label>
+  <input type="text" id="dni" name="dni" pattern="[0-9]{8}[A-Z]" title="8 cifras y una letra mayúscula" required>
+  <label for="usuario">Usuario de Aules</label>
+  <input type="text" id="usuario" name="usuario" pattern="[a-z0-9]{3,12}" title="De 3 a 12 letras minúsculas o cifras" required>
+  <button type="submit">Comprobar</button>
+</form>`,
+  checks: [
+    { d: 'Código postal: acepta 03203, rechaza 3203, 032031 y 0320A', js: patternCheck('#cp', ['03203', '46001'], ['3203', '032031', '0320A', '']) },
+    { d: 'DNI: acepta 12345678Z, rechaza 1234567Z, 12345678z y 123456789', js: patternCheck('#dni', ['12345678Z', '00000001R'], ['1234567Z', '12345678z', '123456789', '12345678ZZ']) },
+    { d: 'Usuario: acepta ana23, rechaza an, Ana23, ana_23 y uno de 13 caracteres', js: patternCheck('#usuario', ['ana23', 'abc', 'abcdefghijkl'], ['an', 'Ana23', 'ana_23', 'ana 23', 'abcdefghijklm']) },
+    { d: 'Los tres son obligatorios', count: ['input[required]', 3] },
+    { d: 'Los tres explican el formato en <code>title</code>', attr: ['input', 'title'] }
   ]
 },
 {
-  id: 'form-buscador', block: 'form', title: 'Buscador', edit: 'html', w: 480, h: 110,
+  id: 'form-desplegables', block: 'form', title: 'Desplegables agrupados y sugerencias', edit: 'html', w: 480, h: 260,
+  tags: ['select', 'optgroup', 'selected', 'datalist'],
+  brief: `<p>Mejora el formulario de preinscripción:</p>
+<ul><li>El <strong>ciclo</strong> se elige en un desplegable con dos grupos: «Informática» (DAM, DAW, ASIR) y «Administración» (Administración y Finanzas, Gestión Administrativa). DAM sale elegido por defecto.</li><li>La <strong>localidad</strong> se escribe libremente, pero el campo sugiere Elche, Alicante, Crevillent y Santa Pola mientras escribes.</li></ul>`,
+  hint: `<code>&lt;optgroup label="Informática"&gt;</code> agrupa opciones y <code>selected</code> marca la de por defecto. Para las sugerencias: <code>&lt;input list="localidades"&gt;</code> y <code>&lt;datalist id="localidades"&gt;&lt;option value="Elche"&gt;…</code>.`,
+  css: FORM_CSS,
+  html: `<form>
+  <label for="ciclo">Ciclo</label>
+  <input type="text" id="ciclo" name="ciclo">
+  <label for="localidad">Localidad</label>
+  <input type="text" id="localidad" name="localidad">
+  <button type="submit">Preinscribirme</button>
+</form>`,
+  sol: `<form>
+  <label for="ciclo">Ciclo</label>
+  <select id="ciclo" name="ciclo">
+    <optgroup label="Informática">
+      <option value="dam" selected>DAM</option>
+      <option value="daw">DAW</option>
+      <option value="asir">ASIR</option>
+    </optgroup>
+    <optgroup label="Administración">
+      <option value="af">Administración y Finanzas</option>
+      <option value="ga">Gestión Administrativa</option>
+    </optgroup>
+  </select>
+  <label for="localidad">Localidad</label>
+  <input type="text" id="localidad" name="localidad" list="localidades">
+  <datalist id="localidades">
+    <option value="Elche">
+    <option value="Alicante">
+    <option value="Crevillent">
+    <option value="Santa Pola">
+  </datalist>
+  <button type="submit">Preinscribirme</button>
+</form>`,
+  checks: [
+    { d: 'El ciclo es un <code>&lt;select&gt;</code>', exists: 'select#ciclo' },
+    { d: 'Dos <code>&lt;optgroup&gt;</code> con <code>label</code>', js: (U) => U.qa('select#ciclo > optgroup').map((g) => g.label).join('|') === 'Informática|Administración' || 'Espero los grupos «Informática» y «Administración»' },
+    { d: '3 + 2 opciones en sus grupos', js: (U) => { const g = U.qa('select#ciclo > optgroup'); return (g.length === 2 && g[0].querySelectorAll('option').length === 3 && g[1].querySelectorAll('option').length === 2) || 'Revisa cuántas opciones hay en cada grupo'; } },
+    { d: 'DAM elegido por defecto', js: (U) => { const o = U.q('select#ciclo option[selected]'); return (o && o.textContent.trim() === 'DAM') || 'Marca DAM con selected'; } },
+    { d: 'Localidad con sugerencias de un <code>&lt;datalist&gt;</code>', js: (U) => { const i = U.q('input#localidad'); const id = i && i.getAttribute('list'); const dl = id && U.doc.getElementById(id); return (dl && dl.tagName === 'DATALIST' && dl.querySelectorAll('option').length === 4) || 'El campo debe tener list="…" apuntando a un datalist con 4 opciones'; } }
+  ]
+},
+{
+  id: 'form-estados', block: 'form', title: 'Campos fijos, desactivados y botones', edit: 'html', w: 480, h: 330,
+  tags: ['value', 'readonly', 'disabled', 'maxlength', 'reset'],
+  brief: `<p>Formulario de matrícula:</p>
+<ul><li>El <strong>curso</strong> ya viene puesto (<code>2026/27</code>): se envía, pero no se puede cambiar.</li><li>La <strong>solicitud de beca</strong> está desactivada porque el plazo terminó (ni se edita ni se envía).</li><li>El <strong>código de matrícula</strong> admite como máximo 6 caracteres.</li><li>Además del botón de enviar, añade uno que <strong>borre</strong> el formulario.</li></ul>`,
+  hint: `<code>value</code> + <code>readonly</code> (se envía) frente a <code>disabled</code> (no se envía). El botón de borrar es <code>&lt;button type="reset"&gt;</code>.`,
+  css: FORM_CSS + `
+input[readonly] { background: #f1f5f9; }
+input:disabled { opacity: .5; }
+button[type="reset"] { background: #e2e8f0; color: #0f172a; }`,
+  html: `<form>
+  <label for="curso">Curso</label>
+  <input type="text" id="curso" name="curso">
+  <label for="beca">Solicitud de beca</label>
+  <input type="text" id="beca" name="beca">
+  <label for="codigo">Código de matrícula</label>
+  <input type="text" id="codigo" name="codigo">
+  <button type="submit">Matricularme</button>
+</form>`,
+  sol: `<form>
+  <label for="curso">Curso</label>
+  <input type="text" id="curso" name="curso" value="2026/27" readonly>
+  <label for="beca">Solicitud de beca</label>
+  <input type="text" id="beca" name="beca" disabled>
+  <label for="codigo">Código de matrícula</label>
+  <input type="text" id="codigo" name="codigo" maxlength="6">
+  <button type="submit">Matricularme</button>
+  <button type="reset">Borrar</button>
+</form>`,
+  checks: [
+    { d: 'El curso vale 2026/27 y no se puede cambiar, pero se envía', exists: 'input#curso[value="2026/27"][readonly]:not([disabled])' },
+    { d: 'La beca está desactivada', exists: 'input#beca[disabled]' },
+    { d: 'El código admite 6 caracteres como máximo', exists: 'input#codigo[maxlength="6"]' },
+    { d: 'Botón de enviar y botón de borrar', js: (U) => (U.qa('button[type="submit"]').length === 1 && U.qa('button[type="reset"], input[type="reset"]').length === 1) || 'Necesito un botón submit y otro reset' }
+  ]
+},
+{
+  id: 'form-consulta', block: 'form', title: 'Formulario de consulta completo', edit: 'html', w: 480, h: 470,
+  tags: ['required', 'maxlength', 'pattern', 'autofocus', 'placeholder'],
+  brief: `<p>Al estilo de la práctica de la UP03. Formulario de consulta del club de robótica:</p>
+<ul><li><strong>Nombre</strong>: máximo 30 caracteres; solo letras, cifras y espacios.</li><li><strong>Email</strong>.</li><li><strong>Edad</strong>: entre 14 y 99.</li><li><strong>Consulta</strong>: texto largo.</li><li>Casilla de aceptación de la política de privacidad.</li></ul>
+<p>Todos los campos son <strong>obligatorios</strong>, todos tienen <code>&lt;label&gt;</code>, los que se escriben llevan <code>placeholder</code> y el foco empieza en «Nombre».</p>`,
+  hint: `El email y la edad ya se validan por su <code>type</code> (con <code>min</code>/<code>max</code>): solo el nombre necesita <code>pattern</code>, por ejemplo <code>[A-Za-z0-9 ]+</code>. El foco inicial es <code>autofocus</code>.`,
+  css: FORM_CSS,
+  html: `<form>
+  Nombre <input type="text">
+  Email <input type="text">
+  Edad <input type="text">
+  Consulta <input type="text">
+  <input type="checkbox"> Acepto la política de privacidad
+  <button type="submit">Enviar consulta</button>
+</form>`,
+  sol: `<form>
+  <label for="nombre">Nombre</label>
+  <input type="text" id="nombre" name="nombre" maxlength="30" pattern="[A-Za-z0-9 ]+" placeholder="Ana García" required autofocus>
+  <label for="email">Email</label>
+  <input type="email" id="email" name="email" placeholder="ana@ejemplo.com" required>
+  <label for="edad">Edad</label>
+  <input type="number" id="edad" name="edad" min="14" max="99" placeholder="16" required>
+  <label for="consulta">Consulta</label>
+  <textarea id="consulta" name="consulta" rows="4" placeholder="Escribe aquí tu consulta" required></textarea>
+  <label><input type="checkbox" name="privacidad" required> Acepto la política de privacidad</label>
+  <button type="submit">Enviar consulta</button>
+</form>`,
+  checks: [
+    { d: 'Nombre: máximo 30 caracteres', exists: 'input#nombre[maxlength="30"]' },
+    { d: 'Nombre: acepta «Ana 2», rechaza «Ana!» y «ana@b»', js: patternCheck('#nombre', ['Ana 2', 'Luis', 'MariaJose 1990'], ['Ana!', 'ana@b', '']) },
+    { d: 'Email de tipo correo', exists: 'input#email[type="email"]' },
+    { d: 'Edad numérica entre 14 y 99', exists: 'input#edad[type="number"][min="14"][max="99"]' },
+    { d: 'Consulta en un <code>&lt;textarea&gt;</code>', exists: 'textarea#consulta' },
+    { d: 'Los cinco campos son obligatorios', js: (U) => U.qa('input, textarea').filter((e) => e.required).length === 5 || 'Hay ' + U.qa('input[required], textarea[required]').length + ' campos obligatorios; se esperan 5' },
+    { d: 'Todos los campos tienen <code>&lt;label&gt;</code>', labels: true },
+    { d: 'Placeholder en nombre, email, edad y consulta', js: (U) => ['#nombre', '#email', '#edad', '#consulta'].every((s) => { const e = U.q(s); return e && e.placeholder.trim(); }) || 'Falta algún placeholder' },
+    { d: 'El foco empieza en el nombre', exists: 'input#nombre[autofocus]' }
+  ]
+},
+{id: 'form-buscador', block: 'form', title: 'Buscador', edit: 'html', w: 480, h: 110,
   tags: ['role=search', 'type=search', 'method=get', 'action'],
   brief: `<p>Convierte el «buscador» en un formulario de verdad:</p>
 <ul><li>Envía por <code>GET</code> a <code>/buscar</code> y se identifica como búsqueda con <code>role="search"</code>.</li><li>Campo de tipo búsqueda llamado <code>q</code>, con su etiqueta «Buscar apuntes».</li><li>Botón de envío.</li></ul>`,
@@ -14135,164 +14926,113 @@ button { font: inherit; padding: 6px 14px; background: #1d4ed8; color: #fff; bor
 }
 );
 
-/* ---- 03-selectores.js ---- */
-/* ===================== BLOQUE 3 · SELECTORES, CASCADA, BOX MODEL ===================== */
+/* ---- 04-css-selectores-cajas.js ---- */
+/* ===================== BLOQUE · UP04 · SELECTORES, TEXTO Y MODELO DE CAJAS ===================== */
 window.EXERCISES.push(
 {
-  id: 'boton-css', block: 'sel', title: 'Botones a partir de una ficha de diseño', edit: 'css', w: 480, h: 130,
-  tags: ['padding', 'background', 'border-radius', 'display'],
-  brief: `<p>Diseño te pasa esta ficha. Aplícala:</p>
-<ul><li><code>.btn</code>: <code>inline-block</code>, relleno <code>12px 24px</code>, fondo <code>#1d4ed8</code>, texto blanco en negrita 600, sin subrayado, esquinas de <code>8px</code>.</li><li><code>.btn-sec</code>: fondo transparente, texto <code>#1d4ed8</code> y borde de <code>2px</code> sólido del mismo color.</li></ul>`,
-  hint: `<code>.btn-sec</code> solo sobrescribe lo que cambia; el resto lo hereda de <code>.btn</code> porque el elemento tiene las dos clases.`,
-  html: `<a class="btn" href="#">Matricularme</a>
-<a class="btn btn-sec" href="#">Más info</a>`,
-  css: `body { margin: 24px; }
+  id: 'selectores-basicos', block: 'sel', title: 'Universal, etiqueta, clase, id y grupo', edit: 'css', w: 480, h: 260,
+  tags: ['*', 'etiqueta', '.clase', '#id', 'a, b', 'descendiente'],
+  brief: `<p>Sin tocar el HTML, aplica estos estilos eligiendo el selector adecuado para cada uno:</p>
+<ol><li><strong>Todos</strong> los elementos, sin margen.</li><li>Los párrafos, en color <code>#334155</code> y con <code>8px</code> de relleno vertical (<code>padding: 8px 0</code>).</li><li>Los <code>h1</code> y <code>h2</code>, en <strong>una sola regla</strong>: fuente <code>Georgia, serif</code> y color <code>#9a3412</code>.</li><li>La cabecera (tiene <code>id="cabecera"</code>): fondo <code>#1e293b</code> y relleno de <code>12px</code>.</li><li>El logo (clase <code>logo</code>) en blanco, y la palabra «Granito», que es un <code>&lt;span&gt;</code> dentro del logo, en <code>#f97316</code>.</li><li>Los párrafos con la clase <code>aviso</code>, en <code>#b91c1c</code> y negrita.</li></ol>`,
+  hint: `<code>*</code> · <code>p</code> · <code>h1, h2</code> · <code>#cabecera</code> · <code>.logo span</code> · <code>.aviso</code>. Si el aviso no se pone rojo, mira qué regla va después: con el mismo peso gana la última, pero <code>.aviso</code> pesa más que <code>p</code>.`,
+  html: `<header id="cabecera">
+  <p class="logo">Club <span>Granito</span></p>
+</header>
+<h1>Próximas salidas</h1>
+<h2>Sábado: Sierra de Bernia</h2>
+<p>Ruta de nivel medio. Salimos a las 8:00 desde el instituto.</p>
+<h2>Domingo: Ponoch</h2>
+<p class="aviso">Plazas agotadas.</p>`,
+  css: `body { font-size: 15px; }
 
-.btn {
+/* 1. Todos los elementos */
 
-}
+/* 2. Párrafos */
+
+/* 3. h1 y h2 (una sola regla) */
+
+/* 4. Cabecera */
+
+/* 5. Logo y «Granito» */
+
+/* 6. Avisos */
 `,
-  sol: `body { margin: 24px; }
+  sol: `body { font-size: 15px; }
 
-.btn {
-  display: inline-block;
-  padding: 12px 24px;
-  background: #1d4ed8;
-  color: #fff;
-  font-weight: 600;
-  text-decoration: none;
-  border-radius: 8px;
-}
+/* 1. Todos los elementos */
+* { margin: 0; }
 
-.btn-sec {
-  background: transparent;
-  color: #1d4ed8;
-  border: 2px solid #1d4ed8;
-}`,
+/* 2. Párrafos */
+p { color: #334155; padding: 8px 0; }
+
+/* 3. h1 y h2 (una sola regla) */
+h1, h2 { font-family: Georgia, serif; color: #9a3412; }
+
+/* 4. Cabecera */
+#cabecera { background: #1e293b; padding: 12px; }
+
+/* 5. Logo y «Granito» */
+.logo { color: #fff; }
+.logo span { color: #f97316; }
+
+/* 6. Avisos */
+.aviso { color: #b91c1c; font-weight: 700; }`,
   checks: [
-    { d: '<code>.btn</code>: display, padding, colores y radio', css: ['.btn:not(.btn-sec)', ['display', 'padding', 'background-color', 'color', 'border-radius']] },
-    { d: '<code>.btn</code>: negrita y sin subrayado', css: ['.btn', ['font-weight', 'text-decoration-line']] },
-    { d: '<code>.btn-sec</code>: fondo, color y borde', css: ['.btn-sec', ['background-color', 'color', 'border']] },
-    { d: 'Tamaño y posición correctos', rect: '.btn' }
+    { d: 'Selector universal para quitar los márgenes', src: ['css', /(^|[\s}])\*\s*\{[^}]*margin\s*:\s*0/], msg: 'No veo * { margin: 0 }' },
+    { d: 'Ningún elemento tiene margen', css: ['body, body *', ['margin']] },
+    { d: '<code>h1</code> y <code>h2</code> en una sola regla', src: ['css', /\bh1\s*,\s*h2\b|\bh2\s*,\s*h1\b/], msg: 'Agrupa h1 y h2 en el mismo selector' },
+    { d: 'Fuente y color de los títulos', css: ['h1, h2', ['font-family', 'color']] },
+    { d: 'Párrafos: color y relleno', css: ['p:not(.logo)', ['color', 'padding']] },
+    { d: 'Cabecera: fondo y relleno', css: ['#cabecera', ['background-color', 'padding']] },
+    { d: 'Logo blanco con «Granito» en naranja', css: ['.logo, .logo span', ['color']] },
+    { d: 'Aviso en rojo y negrita', css: ['.aviso', ['color', 'font-weight']] }
   ]
 },
 {
-  id: 'box-model', block: 'sel', title: 'Una caja de 200 × 100, ni un píxel más', edit: 'css', w: 480, h: 200,
-  tags: ['box model', 'box-sizing', 'padding', 'border'],
-  brief: `<p>La caja tiene que medir <strong>exactamente 200 × 100 px en pantalla</strong>, con <code>20px</code> de relleno y un borde de <code>5px</code>. Ahora mismo mide más. Arréglalo sin quitar ni el relleno ni el borde.</p>`,
-  hint: `Por defecto <code>width</code> es solo el contenido (<code>content-box</code>). O cambias a <code>box-sizing: border-box</code>, o restas tú: 200 − 2·20 − 2·5 = 150.`,
-  html: `<div class="caja">Soy una caja</div>`,
-  css: `body { margin: 24px; }
-
-.caja {
-  width: 200px;
-  height: 100px;
-  padding: 20px;
-  border: 5px solid #1d4ed8;
-  background: #dbeafe;
-}
+  id: 'combinadores', block: 'sel', title: 'Hijos, hermanos y descendientes', edit: 'css', w: 480, h: 300,
+  tags: ['a > b', 'a + b', 'a ~ b'],
+  brief: `<p>Sin añadir clases al HTML, usa <strong>combinadores</strong>:</p>
+<ul><li>Solo los párrafos <strong>hijos directos</strong> de <code>.noticia</code> (no el que está dentro de <code>.extra</code>) en color <code>#475569</code>.</li><li>El párrafo que va <strong>justo después</strong> del <code>h2</code> (la entradilla), en negrita.</li><li>Todos los elementos del menú que van <strong>después</strong> del <code>.activo</code>, en <code>#94a3b8</code>.</li></ul>`,
+  hint: `<code>.noticia &gt; p</code>, <code>h2 + p</code> y <code>.activo ~ li</code>.`,
+  html: `<article class="noticia">
+  <h2>Nueva vía en el Espolón norte</h2>
+  <p>Ya se puede escalar «Cresta del alba», un 6b de 35 metros.</p>
+  <p>La equiparon dos socios del club durante el verano.</p>
+  <div class="extra">
+    <p>Foto: archivo del club.</p>
+  </div>
+</article>
+<ul class="menu">
+  <li>Inicio</li>
+  <li class="activo">Rutas</li>
+  <li>Cursos</li>
+  <li>Contacto</li>
+</ul>`,
+  css: `body { margin: 16px; font-size: 15px; color: #0f172a; }
+h2 { margin: 0 0 6px; font-size: 18px; }
+p { margin: 0 0 6px; }
+.extra { font-size: 13px; }
+.menu { display: flex; gap: 16px; list-style: none; padding: 0; }
+.activo { text-decoration: underline; }
 `,
-  sol: `body { margin: 24px; }
+  sol: `body { margin: 16px; font-size: 15px; color: #0f172a; }
+h2 { margin: 0 0 6px; font-size: 18px; }
+p { margin: 0 0 6px; }
+.extra { font-size: 13px; }
+.menu { display: flex; gap: 16px; list-style: none; padding: 0; }
+.activo { text-decoration: underline; }
 
-.caja {
-  box-sizing: border-box;
-  width: 200px;
-  height: 100px;
-  padding: 20px;
-  border: 5px solid #1d4ed8;
-  background: #dbeafe;
-}`,
+.noticia > p { color: #475569; }
+h2 + p { font-weight: 700; }
+.activo ~ li { color: #94a3b8; }`,
   checks: [
-    { d: 'Mide 200 × 100 en pantalla', rect: '.caja' },
-    { d: 'Mantiene relleno de 20px y borde de 5px', css: ['.caja', ['padding', 'border']] },
-    { d: 'Mismo fondo', css: ['.caja', ['background-color']] }
+    { d: 'Color de los párrafos (y el de <code>.extra</code> sin tocar)', css: ['p', ['color']] },
+    { d: 'Solo la entradilla en negrita', css: ['p', ['font-weight']] },
+    { d: 'Elementos del menú posteriores al activo', css: ['.menu li', ['color']] },
+    { d: 'Usas los combinadores <code>&gt;</code>, <code>+</code> y <code>~</code>', js: (U, S, src) => { const miss = [['>', />/], ['+', /\+/], ['~', /~/]].filter(([, re]) => !re.test(src.css)).map(([s]) => s); return miss.length === 0 || 'Te falta usar: ' + miss.join(' '); } }
   ]
 },
-{
-  id: 'centrar-tarjeta', block: 'sel', title: 'Centrar un bloque', edit: 'css', w: 480, h: 180,
-  tags: ['margin auto', 'text-align', 'colapso de márgenes'],
-  brief: `<p>Centra la tarjeta en horizontal con márgenes automáticos y deja <code>24px</code> de margen arriba. Su texto va centrado. Quita los márgenes por defecto de <code>h2</code> y <code>p</code>, salvo <code>4px</code> bajo el título.</p>`,
-  hint: `<code>margin: 24px auto</code> centra un bloque con anchura fija. <code>text-align: center</code> centra el contenido en línea, no la caja.`,
-  html: `<div class="tarjeta">
-  <h2>Tutoría colectiva</h2>
-  <p>Martes, 16:00 · Aula 12</p>
-</div>`,
-  css: `body { margin: 0; }
-
-.tarjeta {
-  width: 260px;
-  padding: 16px;
-  background: #f1f5f9;
-  border-radius: 10px;
-}
-`,
-  sol: `body { margin: 0; }
-
-.tarjeta {
-  width: 260px;
-  margin: 24px auto;
-  padding: 16px;
-  background: #f1f5f9;
-  border-radius: 10px;
-  text-align: center;
-}
-
-.tarjeta h2 { margin: 0 0 4px; }
-.tarjeta p { margin: 0; }`,
-  checks: [
-    { d: 'La tarjeta está centrada y a 24px del borde superior', rect: '.tarjeta' },
-    { d: 'Texto centrado', css: ['.tarjeta', ['text-align']] },
-    { d: 'Márgenes de <code>h2</code> y <code>p</code>', css: ['.tarjeta > *', ['margin']] },
-    { d: 'El título queda en su sitio', rect: '.tarjeta h2' }
-  ]
-},
-{
-  id: 'selectores-atributo', block: 'sel', title: 'Selectores sin tocar el HTML', edit: 'css', w: 480, h: 260,
-  tags: [':nth-child', 'atributo ^= $=', 'clases'],
-  brief: `<p>No puedes añadir clases. Usa solo selectores:</p>
-<ul><li><code>.tareas</code> sin viñetas ni sangría; cada tarea con relleno <code>4px 8px</code>.</li><li>Tareas impares con fondo <code>#f1f5f9</code>.</li><li>Las <code>.hecha</code>, tachadas y en color <code>#94a3b8</code>.</li><li>Enlaces externos (empiezan por <code>http</code>) en <code>#059669</code>.</li><li>Enlaces a PDF (acaban en <code>.pdf</code>) en negrita.</li></ul>`,
-  hint: `<code>li:nth-child(odd)</code>, <code>a[href^="http"]</code>, <code>a[href$=".pdf"]</code>.`,
-  html: `<ul class="tareas">
-  <li>Leer la UP03</li>
-  <li class="hecha">Instalar VS Code</li>
-  <li class="hecha">Hacer la práctica de tablas</li>
-  <li>Subir el formulario</li>
-  <li>Repasar selectores</li>
-</ul>
-<p>Material: <a href="https://developer.mozilla.org">MDN</a>, <a href="apuntes.pdf">apuntes.pdf</a> y <a href="#up03">UP03</a>.</p>`,
-  css: `body { margin: 16px; font-size: 15px; }
-
-.tareas {
-
-}
-`,
-  sol: `body { margin: 16px; font-size: 15px; }
-
-.tareas {
-  list-style: none;
-  padding: 0;
-}
-
-.tareas li { padding: 4px 8px; }
-.tareas li:nth-child(odd) { background: #f1f5f9; }
-
-.hecha {
-  text-decoration: line-through;
-  color: #94a3b8;
-}
-
-a[href^="http"] { color: #059669; }
-a[href$=".pdf"] { font-weight: 700; }`,
-  checks: [
-    { d: 'Lista sin viñetas ni sangría', css: ['.tareas', ['list-style-type', 'padding-left']] },
-    { d: 'Relleno de cada tarea', css: ['.tareas li', ['padding']] },
-    { d: 'Fondo en las impares', css: ['.tareas li', ['background-color']] },
-    { d: 'Tareas hechas tachadas y en gris', css: ['.tareas li', ['text-decoration-line', 'color']] },
-    { d: 'Enlaces externos y PDF', css: ['a', ['color', 'font-weight']] }
-  ]
-},
-{
-  id: 'especificidad', block: 'sel', title: 'Gana la cascada sin !important', edit: 'css', w: 480, h: 150,
+{id: 'especificidad', block: 'sel', title: 'Gana la cascada sin !important', edit: 'css', w: 480, h: 150,
   tags: ['especificidad', 'cascada', '!important'],
   brief: `<p>El aviso <code>.importante</code> debe tener texto y borde izquierdo en <code>#b91c1c</code>. Las dos reglas que hay no se pueden tocar y no vale <code>!important</code>.</p>`,
   hint: `<code>#contenido p</code> tiene especificidad (1,0,1). <code>.importante</code> solo (0,1,0) y pierde. Necesitas algo como <code>#contenido .importante</code> (1,1,0).`,
@@ -14325,10 +15065,179 @@ a[href$=".pdf"] { font-weight: 700; }`,
     { d: 'Borde izquierdo rojo solo en el importante', css: ['.aviso', ['border-left-color', 'border-left-width', 'padding']] },
     { d: 'Sin <code>!important</code>', nosrc: ['css', /!\s*important/i], msg: 'Has usado !important' },
     { d: 'Las dos reglas originales siguen ahí', src: ['css', /#contenido\s+p\s*\{\s*color:\s*#475569;?\s*\}[\s\S]*\.aviso\s*\{\s*padding:\s*8px;\s*border-left:\s*4px solid #94a3b8;?\s*\}/], msg: 'Has modificado #contenido p o .aviso' }
+  ]},
+{
+  id: 'unidades-medida', block: 'sel', title: 'px, rem, em, % y vh', edit: 'css', w: 480, h: 260,
+  tags: ['vh', 'rem', 'em', '%'],
+  brief: `<p>Portada del club de robótica. Usa la unidad que se indica:</p>
+<ul><li><code>.portada</code>: alto de <strong>toda la ventana</strong> (<code>100vh</code>) y un relleno del <code>5%</code> (del ancho).</li><li><code>h1</code>: <code>2.5rem</code> y sin margen. <code>p</code>: <code>1.25rem</code>.</li><li><code>.boton</code>: tamaño <code>1rem</code> y relleno <code>0.5em 1em</code>: así el relleno crece si algún día cambia la letra del botón.</li></ul>`,
+  hint: `<code>rem</code> se calcula con la letra de <code>&lt;html&gt;</code> (16 px): 2.5rem = 40 px. <code>em</code> usa la del propio elemento. El relleno en <code>%</code> siempre se calcula con el <strong>ancho</strong> del padre.`,
+  html: `<section class="portada">
+  <h1>Club de robótica</h1>
+  <p>Jueves de 16:00 a 18:00 · Aula 21</p>
+  <a class="boton" href="#">Apúntate</a>
+</section>`,
+  css: `body { margin: 0; }
+
+.portada {
+  box-sizing: border-box;
+  background: #0f172a;
+  color: #fff;
+}
+
+.boton {
+  display: inline-block;
+  background: #22c55e;
+  color: #0f172a;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 6px;
+}
+`,
+  sol: `body { margin: 0; }
+
+.portada {
+  box-sizing: border-box;
+  height: 100vh;
+  padding: 5%;
+  background: #0f172a;
+  color: #fff;
+}
+
+h1 { font-size: 2.5rem; margin: 0; }
+p { font-size: 1.25rem; }
+
+.boton {
+  display: inline-block;
+  font-size: 1rem;
+  padding: 0.5em 1em;
+  background: #22c55e;
+  color: #0f172a;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 6px;
+}`,
+  checks: [
+    { d: 'La portada ocupa toda la ventana', rect: '.portada' },
+    { d: 'Relleno del 5 % del ancho', css: ['.portada', ['padding']] },
+    { d: 'Tamaños de letra', css: ['h1, p, .boton', ['font-size']] },
+    { d: 'Relleno del botón', css: ['.boton', ['padding']] },
+    { d: 'Usas <code>vh</code>, <code>rem</code>, <code>em</code> y <code>%</code>', js: (U, S, src) => { const miss = [['vh', /\dvh\b/], ['rem', /\drem\b/], ['em', /\dem\b/], ['%', /\d%/]].filter(([, re]) => !re.test(src.css)).map(([u]) => u); return miss.length === 0 || 'Te falta usar: ' + miss.join(', '); } }
   ]
 },
 {
-  id: 'tipografia', block: 'sel', title: 'Tipografía de un artículo', edit: 'css', w: 480, h: 300,
+  id: 'colores-fondo', block: 'sel', title: 'Imagen de fondo que cubre la caja', edit: 'css', w: 480, h: 240,
+  tags: ['background-size: cover', 'background-position', 'rgba', 'hex'],
+  brief: `<p>La llamada a la acción ya tiene su imagen de fondo, pero sale repetida en mosaico. Arréglalo:</p>
+<ul><li>La imagen <strong>cubre</strong> toda la caja, centrada y sin repetirse.</li><li>El texto de <code>.cta</code> es blanco y la caja de dentro (<code>.caja</code>) tiene fondo blanco con un <strong>85 % de opacidad</strong> (<code>rgba</code>) y texto <code>#1e293b</code>.</li><li>El título va en <code>#b45309</code>.</li></ul>`,
+  hint: `<code>background-size: cover; background-position: center; background-repeat: no-repeat;</code>. El blanco al 85 %: <code>rgba(255, 255, 255, 0.85)</code>.`,
+  html: `<section class="cta">
+  <div class="caja">
+    <h2>Curso de iniciación</h2>
+    <p>Dos fines de semana en diciembre. ¡Plazas limitadas!</p>
+  </div>
+</section>`,
+  css: `body { margin: 0; }
+
+.cta {
+  padding: 40px 24px;
+  text-align: center;
+  background-image: url("${FONDO}");
+}
+
+.caja {
+  max-width: 300px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  border-radius: 8px;
+}
+
+.caja h2 { margin: 0 0 4px; }
+.caja p { margin: 0; }
+`,
+  sol: `body { margin: 0; }
+
+.cta {
+  padding: 40px 24px;
+  text-align: center;
+  background-image: url("${FONDO}");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #fff;
+}
+
+.caja {
+  max-width: 300px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.85);
+  color: #1e293b;
+}
+
+.caja h2 { margin: 0 0 4px; color: #b45309; }
+.caja p { margin: 0; }`,
+  checks: [
+    { d: 'La imagen cubre la caja, centrada y sin repetir', css: ['.cta', ['background-size', 'background-position-x', 'background-position-y', 'background-repeat']] },
+    { d: 'Sigue la misma imagen de fondo', css: ['.cta', ['background-image']] },
+    { d: 'Texto blanco en <code>.cta</code>', css: ['.cta', ['color']] },
+    { d: 'Caja blanca semitransparente con texto oscuro', css: ['.caja', ['background-color', 'color']] },
+    { d: 'Título en <code>#b45309</code>', css: ['.caja h2', ['color']] }
+  ]
+},
+{
+  id: 'texto-propiedades', block: 'sel', title: 'Propiedades de texto', edit: 'css', w: 480, h: 330,
+  tags: ['text-align', 'text-indent', 'text-transform', 'text-decoration', 'line-height'],
+  brief: `<p>Dale formato a la noticia solo con propiedades de texto:</p>
+<ul><li><code>h2</code>: centrado, en mayúsculas, <strong>subrayado</strong> y con <code>2px</code> entre letras.</li><li>Párrafos: justificados, sangría de primera línea de <code>2em</code> e interlineado <code>1.5</code>.</li><li><code>.firma</code>: alineada a la derecha, en cursiva y sin sangría.</li><li>El enlace, sin subrayado.</li></ul>`,
+  hint: `<code>text-align</code>, <code>text-transform: uppercase</code>, <code>text-decoration: underline</code>, <code>letter-spacing</code>, <code>text-indent</code>, <code>line-height</code> y <code>font-style: italic</code>. Escribir el título en mayúsculas en el HTML no vale: eso es presentación.`,
+  html: `<article>
+  <h2>Jornada de puertas abiertas</h2>
+  <p>El próximo sábado el instituto abre sus aulas a las familias y a los futuros alumnos. Habrá demostraciones de los proyectos de segundo de DAM y del club de robótica, y el profesorado resolverá dudas sobre la modalidad semipresencial.</p>
+  <p>Toda la información está en la <a href="#">web del centro</a>.</p>
+  <p class="firma">Departamento de Informática</p>
+</article>`,
+  css: `body { margin: 16px; font-size: 14px; }
+h2 { font-size: 18px; margin: 0 0 8px; }
+p { margin: 0 0 6px; }
+a { color: #1d4ed8; }
+`,
+  sol: `body { margin: 16px; font-size: 14px; }
+h2 { font-size: 18px; margin: 0 0 8px; }
+p { margin: 0 0 6px; }
+a { color: #1d4ed8; }
+
+h2 {
+  text-align: center;
+  text-transform: uppercase;
+  text-decoration: underline;
+  letter-spacing: 2px;
+}
+
+p {
+  text-align: justify;
+  text-indent: 2em;
+  line-height: 1.5;
+}
+
+.firma {
+  text-align: right;
+  font-style: italic;
+  text-indent: 0;
+}
+
+a { text-decoration: none; }`,
+  checks: [
+    { d: 'Título centrado, en mayúsculas y subrayado', css: ['h2', ['text-align', 'text-transform', 'text-decoration-line']] },
+    { d: 'Espaciado entre letras del título', css: ['h2', ['letter-spacing']] },
+    { d: 'Párrafos justificados con sangría e interlineado', css: ['p:not(.firma)', ['text-align', 'text-indent', 'line-height']] },
+    { d: 'Firma a la derecha, en cursiva y sin sangría', css: ['.firma', ['text-align', 'font-style', 'text-indent']] },
+    { d: 'Enlace sin subrayado', css: ['a', ['text-decoration-line']] },
+    { d: 'El texto del título sigue en minúsculas en el HTML', js: (U) => U.q('h2').textContent === 'Jornada de puertas abiertas' }
+  ]
+},
+{id: 'tipografia', block: 'sel', title: 'Tipografía de un artículo', edit: 'css', w: 480, h: 300,
   tags: ['font-family', 'rem/em', 'line-height', 'letter-spacing', 'ch'],
   brief: `<p>Ficha tipográfica:</p>
 <ul><li><code>article</code>: ancho máximo <code>42ch</code>, fuente <code>Georgia, serif</code>.</li><li><code>h1</code>: <code>1.75rem</code>, interlineado <code>1.2</code>, sin márgenes.</li><li>Párrafos: interlineado <code>1.6</code>, sin márgenes.</li><li><code>.meta</code>: <code>system-ui, sans-serif</code>, <code>0.75rem</code>, mayúsculas, espaciado de letras <code>0.08em</code>, color <code>#64748b</code>, margen <code>4px 0 12px</code>.</li></ul>`,
@@ -14377,55 +15286,1026 @@ p {
     { d: '<code>.meta</code>: fuente, tamaño, mayúsculas, espaciado y color', css: ['.meta', ['font-family', 'font-size', 'text-transform', 'letter-spacing', 'color', 'margin']] },
     { d: 'Párrafos con interlineado 1.6', css: ['p:not(.meta)', ['line-height', 'margin']] },
     { d: 'Todo cae en su sitio', rect: 'article > *' }
+  ]},
+{
+  id: 'listas-css', block: 'sel', title: 'Viñetas y numeración con CSS', edit: 'css', w: 480, h: 360,
+  tags: ['list-style-type', 'list-style-position', 'list-style: none'],
+  brief: `<p>En la UP03 cambiábamos las viñetas con atributos de HTML. La forma moderna es CSS:</p>
+<ul><li><code>.material</code>: viñetas cuadradas.</li><li><code>.unidades</code>: números romanos en mayúscula.</li><li><code>.pasos</code>: letras minúsculas, con el marcador <strong>dentro</strong> de la caja (fíjate en el borde).</li><li><code>.etiquetas</code>: sin marcador y sin la sangría que deja la lista.</li></ul>`,
+  hint: `<code>list-style-type</code>: <code>square</code>, <code>upper-roman</code>, <code>lower-alpha</code>, <code>none</code>. <code>list-style-position: inside</code>. La sangría es el <code>padding-left</code> de la lista.`,
+  html: `<ul class="material">
+  <li>Portátil</li>
+  <li>Cuaderno</li>
+</ul>
+<ol class="unidades">
+  <li>Lenguajes de marcas</li>
+  <li>HTML I</li>
+  <li>HTML II</li>
+</ol>
+<ol class="pasos">
+  <li>Descarga el ZIP</li>
+  <li>Descomprímelo</li>
+</ol>
+<ul class="etiquetas">
+  <li>#html</li>
+  <li>#css</li>
+</ul>`,
+  css: `body { margin: 16px; font-size: 14px; }
+ul, ol { margin: 0 0 10px; }
+.pasos { border: 1px solid #94a3b8; border-radius: 6px; padding: 6px 12px; }
+.etiquetas li { display: inline-block; margin-right: 6px; padding: 2px 8px; background: #e0e7ff; border-radius: 999px; }
+`,
+  sol: `body { margin: 16px; font-size: 14px; }
+ul, ol { margin: 0 0 10px; }
+.pasos { border: 1px solid #94a3b8; border-radius: 6px; padding: 6px 12px; }
+.etiquetas li { display: inline-block; margin-right: 6px; padding: 2px 8px; background: #e0e7ff; border-radius: 999px; }
+
+.material { list-style-type: square; }
+.unidades { list-style-type: upper-roman; }
+.pasos {
+  list-style-type: lower-alpha;
+  list-style-position: inside;
+}
+.etiquetas {
+  list-style: none;
+  padding-left: 0;
+}`,
+  checks: [
+    { d: 'Viñetas cuadradas', css: ['.material', ['list-style-type']] },
+    { d: 'Romanos en mayúscula', css: ['.unidades', ['list-style-type']] },
+    { d: 'Letras minúsculas con el marcador dentro', css: ['.pasos', ['list-style-type', 'list-style-position']] },
+    { d: 'Etiquetas sin marcador ni sangría', css: ['.etiquetas', ['list-style-type', 'padding-left']] },
+    { d: 'Todo en su sitio', rect: 'li' }
+  ]
+},
+{id: 'box-model', block: 'sel', title: 'Una caja de 200 × 100, ni un píxel más', edit: 'css', w: 480, h: 200,
+  tags: ['box model', 'box-sizing', 'padding', 'border'],
+  brief: `<p>La caja tiene que medir <strong>exactamente 200 × 100 px en pantalla</strong>, con <code>20px</code> de relleno y un borde de <code>5px</code>. Ahora mismo mide más. Arréglalo sin quitar ni el relleno ni el borde.</p>`,
+  hint: `Por defecto <code>width</code> es solo el contenido (<code>content-box</code>). O cambias a <code>box-sizing: border-box</code>, o restas tú: 200 − 2·20 − 2·5 = 150.`,
+  html: `<div class="caja">Soy una caja</div>`,
+  css: `body { margin: 24px; }
+
+.caja {
+  width: 200px;
+  height: 100px;
+  padding: 20px;
+  border: 5px solid #1d4ed8;
+  background: #dbeafe;
+}
+`,
+  sol: `body { margin: 24px; }
+
+.caja {
+  box-sizing: border-box;
+  width: 200px;
+  height: 100px;
+  padding: 20px;
+  border: 5px solid #1d4ed8;
+  background: #dbeafe;
+}`,
+  checks: [
+    { d: 'Mide 200 × 100 en pantalla', rect: '.caja' },
+    { d: 'Mantiene relleno de 20px y borde de 5px', css: ['.caja', ['padding', 'border']] },
+    { d: 'Mismo fondo', css: ['.caja', ['background-color']] }
+  ]},
+{id: 'centrar-tarjeta', block: 'sel', title: 'Centrar un bloque', edit: 'css', w: 480, h: 180,
+  tags: ['margin auto', 'text-align', 'colapso de márgenes'],
+  brief: `<p>Centra la tarjeta en horizontal con márgenes automáticos y deja <code>24px</code> de margen arriba. Su texto va centrado. Quita los márgenes por defecto de <code>h2</code> y <code>p</code>, salvo <code>4px</code> bajo el título.</p>`,
+  hint: `<code>margin: 24px auto</code> centra un bloque con anchura fija. <code>text-align: center</code> centra el contenido en línea, no la caja.`,
+  html: `<div class="tarjeta">
+  <h2>Tutoría colectiva</h2>
+  <p>Martes, 16:00 · Aula 12</p>
+</div>`,
+  css: `body { margin: 0; }
+
+.tarjeta {
+  width: 260px;
+  padding: 16px;
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+`,
+  sol: `body { margin: 0; }
+
+.tarjeta {
+  width: 260px;
+  margin: 24px auto;
+  padding: 16px;
+  background: #f1f5f9;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.tarjeta h2 { margin: 0 0 4px; }
+.tarjeta p { margin: 0; }`,
+  checks: [
+    { d: 'La tarjeta está centrada y a 24px del borde superior', rect: '.tarjeta' },
+    { d: 'Texto centrado', css: ['.tarjeta', ['text-align']] },
+    { d: 'Márgenes de <code>h2</code> y <code>p</code>', css: ['.tarjeta > *', ['margin']] },
+    { d: 'El título queda en su sitio', rect: '.tarjeta h2' }
+  ]},
+{
+  id: 'tamanos-max-width', block: 'sel', title: 'Anchos que se adaptan', edit: 'css', w: 480, h: 360, views: [360, 480],
+  tags: ['width %', 'max-width', 'min-height', 'img max-width'],
+  brief: `<p>El contenido debe verse bien en un móvil y en una pantalla más ancha (prueba los dos anchos):</p>
+<ul><li><code>.contenido</code>: el <code>90%</code> del ancho, pero como mucho <code>400px</code>, y centrado.</li><li>La imagen nunca se sale de su contenedor y no se deforma.</li><li><code>.aviso</code>: al menos <code>80px</code> de alto, pero que crezca si el texto no cabe.</li></ul>`,
+  hint: `<code>width: 90%; max-width: 400px; margin: 0 auto;</code>. Para la imagen: <code>max-width: 100%; height: auto;</code> (su <code>height</code> del HTML la deformaría). <code>min-height</code> pone un mínimo sin cortar el contenido.`,
+  html: `<div class="contenido">
+  <h2>Salida al Puig Campana</h2>
+  <img src="${IMG}" alt="Montaña con el sol detrás" width="600" height="350">
+  <p class="aviso">Trae agua, calzado de montaña y algo de comer.</p>
+</div>`,
+  css: `body { margin: 16px; font-size: 14px; }
+.contenido { background: #f8fafc; }
+h2 { margin: 0 0 8px; font-size: 18px; }
+img { display: block; }
+.aviso { margin: 8px 0 0; padding: 8px; background: #fef3c7; border-radius: 6px; }
+`,
+  sol: `body { margin: 16px; font-size: 14px; }
+.contenido { background: #f8fafc; }
+h2 { margin: 0 0 8px; font-size: 18px; }
+img { display: block; }
+.aviso { margin: 8px 0 0; padding: 8px; background: #fef3c7; border-radius: 6px; }
+
+.contenido {
+  width: 90%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.aviso { min-height: 80px; }`,
+  checks: [
+    { d: 'En pantalla ancha, 400 px y centrado', rect: '.contenido', w: 480 },
+    { d: 'En el móvil, el 90 % del ancho', rect: '.contenido', w: 360 },
+    { d: 'La imagen cabe y conserva la proporción', rect: 'img', w: 360 },
+    { d: 'El aviso mide al menos 80 px', css: ['.aviso', ['min-height']] }
   ]
 },
 {
-  id: 'variables-css', block: 'sel', title: 'Etiquetas con variables CSS', edit: 'css', w: 480, h: 110,
-  tags: [':root', 'custom properties', 'var()'],
-  brief: `<p>Define en <code>:root</code> las variables <code>--html: #e34c26</code>, <code>--css: #264de4</code>, <code>--js: #f0db4f</code> y <code>--radio: 999px</code>, y úsalas con <code>var()</code>:</p>
-<ul><li><code>.badge</code>: <code>inline-block</code>, relleno <code>4px 12px</code>, radio <code>var(--radio)</code>, fondo <code>var(--html)</code>, texto blanco en negrita 700, tamaño <code>14px</code>.</li><li><code>.badge-css</code> y <code>.badge-js</code> cambian el fondo. La de JS lleva texto <code>#1f2937</code>.</li></ul>`,
-  hint: `<code>:root { --html: #e34c26; }</code> y luego <code>background: var(--html);</code>.`,
-  html: `<span class="badge">HTML</span>
-<span class="badge badge-css">CSS</span>
-<span class="badge badge-js">JS</span>`,
+  id: 'perfil-bordes', block: 'sel', title: 'Bordes, esquinas y sombras', edit: 'css', w: 480, h: 220,
+  tags: ['border', 'border-radius: 50%', 'box-shadow', 'dashed'],
+  brief: `<p>Tarjeta de perfil de la tutora:</p>
+<ul><li><code>.perfil</code>: borde de <code>1px</code> <strong>discontinuo</strong> <code>#94a3b8</code>, esquinas de <code>12px</code> y la sombra <code>0 4px 12px rgba(0, 0, 0, 0.15)</code>.</li><li>El avatar es un <strong>círculo</strong> de <code>80 × 80</code> con un borde sólido de <code>3px</code> en <code>#4338ca</code>.</li><li><code>.cargo</code>: un borde <strong>solo por debajo</strong>, punteado, de <code>2px</code> y en <code>#c7d2fe</code>.</li></ul>`,
+  hint: `<code>border: 1px dashed …</code>, <code>border-radius: 50%</code> (en una caja cuadrada sale un círculo), <code>border-bottom: 2px dotted …</code> y <code>box-shadow: x y desenfoque color</code>.`,
+  html: `<div class="perfil">
+  <img class="avatar" src="${AVATAR}" alt="Foto de la tutora">
+  <div>
+    <h2>Laura Ferrer</h2>
+    <p class="cargo">Tutora de 1º de DAM</p>
+  </div>
+</div>`,
+  css: `body { margin: 24px; font-size: 14px; }
+.perfil { display: flex; gap: 16px; align-items: center; padding: 16px; max-width: 340px; background: #fff; }
+.avatar { display: block; }
+h2 { margin: 0 0 4px; font-size: 18px; }
+.cargo { margin: 0; padding-bottom: 4px; color: #475569; }
+`,
+  sol: `body { margin: 24px; font-size: 14px; }
+.perfil { display: flex; gap: 16px; align-items: center; padding: 16px; max-width: 340px; background: #fff; }
+.avatar { display: block; }
+h2 { margin: 0 0 4px; font-size: 18px; }
+.cargo { margin: 0; padding-bottom: 4px; color: #475569; }
+
+.perfil {
+  border: 1px dashed #94a3b8;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid #4338ca;
+}
+
+.cargo { border-bottom: 2px dotted #c7d2fe; }`,
+  checks: [
+    { d: 'Borde discontinuo y esquinas de la tarjeta', css: ['.perfil', ['border', 'border-radius']] },
+    { d: 'Sombra de la tarjeta', css: ['.perfil', ['box-shadow']] },
+    { d: 'Avatar redondo con borde', css: ['.avatar', ['border', 'border-radius']] },
+    { d: 'Avatar de 80 × 80 (más el borde)', rect: '.avatar' },
+    { d: 'Borde punteado solo debajo del cargo', css: ['.cargo', ['border-bottom-width', 'border-bottom-style', 'border-bottom-color', 'border-top-style', 'border-left-style']] }
+  ]
+},
+{
+  id: 'boton-css', block: 'sel', title: 'Botones a partir de una ficha de diseño', edit: 'css', w: 480, h: 130,
+  tags: ['padding', 'background', 'border-radius', 'display'],
+  brief: `<p>Diseño te pasa esta ficha. Aplícala:</p>
+<ul><li><code>.btn</code>: <code>inline-block</code>, relleno <code>12px 24px</code>, fondo <code>#1d4ed8</code>, texto blanco en negrita 600, sin subrayado, esquinas de <code>8px</code>.</li><li><code>.btn-sec</code>: fondo transparente, texto <code>#1d4ed8</code> y borde de <code>2px</code> sólido del mismo color.</li></ul>`,
+  hint: `<code>.btn-sec</code> solo sobrescribe lo que cambia; el resto lo hereda de <code>.btn</code> porque el elemento tiene las dos clases.`,
+  html: `<a class="btn" href="#">Matricularme</a>
+<a class="btn btn-sec" href="#">Más info</a>`,
   css: `body { margin: 24px; }
 
-:root {
+.btn {
 
 }
 `,
   sol: `body { margin: 24px; }
 
-:root {
-  --html: #e34c26;
-  --css: #264de4;
-  --js: #f0db4f;
-  --radio: 999px;
-}
-
-.badge {
+.btn {
   display: inline-block;
-  padding: 4px 12px;
-  border-radius: var(--radio);
-  background: var(--html);
+  padding: 12px 24px;
+  background: #1d4ed8;
   color: #fff;
-  font-weight: 700;
-  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 8px;
 }
 
-.badge-css { background: var(--css); }
-.badge-js { background: var(--js); color: #1f2937; }`,
+.btn-sec {
+  background: transparent;
+  color: #1d4ed8;
+  border: 2px solid #1d4ed8;
+}`,
   checks: [
-    { d: 'Variables <code>--html</code>, <code>--css</code>, <code>--js</code> y <code>--radio</code> en <code>:root</code>', js: (U) => { const cs = U.doc.defaultView.getComputedStyle(U.doc.documentElement); const miss = ['--html', '--css', '--js', '--radio'].filter((v) => cs.getPropertyValue(v).trim() === ''); return miss.length === 0 || 'Faltan: ' + miss.join(', '); } },
-    { d: 'Usas <code>var()</code> al menos 4 veces', js: (U, S, src) => (src.css.match(/var\(\s*--/g) || []).length >= 4 || 'Solo ' + (src.css.match(/var\(\s*--/g) || []).length + ' usos de var()' },
-    { d: 'Colores de fondo y texto de cada etiqueta', css: ['.badge', ['background-color', 'color']] },
-    { d: 'Forma: display, relleno, radio, tipografía', css: ['.badge', ['display', 'padding', 'border-radius', 'font-weight', 'font-size']] }
+    { d: '<code>.btn</code>: display, padding, colores y radio', css: ['.btn:not(.btn-sec)', ['display', 'padding', 'background-color', 'color', 'border-radius']] },
+    { d: '<code>.btn</code>: negrita y sin subrayado', css: ['.btn', ['font-weight', 'text-decoration-line']] },
+    { d: '<code>.btn-sec</code>: fondo, color y borde', css: ['.btn-sec', ['background-color', 'color', 'border']] },
+    { d: 'Tamaño y posición correctos', rect: '.btn' }
+  ]},
+{
+  id: 'tarjetas-rutas', block: 'sel', title: 'Tarjetas de rutas (formato examen)', edit: 'css', w: 660, h: 380,
+  tags: ['inline-block', 'vertical-align', 'box-sizing', 'box-shadow'],
+  brief: `<p>Como en la actividad del club de escalada de la UP04: te dan el HTML y la guía de estilo, y tú escribes el CSS de las tarjetas (sin Flexbox).</p>
+<ul><li><code>.tarjeta</code>: <code>inline-block</code>, alineada <strong>por arriba</strong>, <code>280px</code> de ancho con un máximo del <code>100%</code>, margen <code>0 12px 32px</code>, fondo blanco, esquinas de <code>8px</code>, la sombra <code>0 4px 12px rgba(0, 0, 0, 0.08)</code> y texto a la izquierda.</li><li><code>.tarjeta img</code>: <code>block</code>, <code>100%</code> de ancho, <code>140px</code> de alto, relleno de <code>16px</code>, fondo <code>#e2d8cd</code> y esquinas de <code>8px</code> <strong>solo arriba</strong>. Ojo: con el relleno, el <code>100%</code> se sale si no cambias el <code>box-sizing</code>.</li><li><code>.tarjeta-cuerpo</code>: relleno de <code>20px</code>.</li><li><code>.tarjeta h2</code>: sin margen salvo <code>8px</code> abajo, <code>1.25rem</code>. <code>.descripcion</code>: sin margen, color <code>#6b5f57</code> y <code>0.9rem</code>.</li></ul>`,
+  hint: `<code>* { box-sizing: border-box; }</code> soluciona el ancho de la imagen. <code>vertical-align: top</code> evita que la tarjeta con menos texto quede más baja. Esquinas solo arriba: <code>border-radius: 8px 8px 0 0</code>.`,
+  html: `<section class="rutas">
+  <article class="tarjeta">
+    <img src="${IMG}" alt="Espolón norte">
+    <div class="tarjeta-cuerpo">
+      <h2>Espolón norte</h2>
+      <p class="descripcion">Vía clásica de 35 metros con vistas al valle. Ideal para la primera salida en roca.</p>
+    </div>
+  </article>
+  <article class="tarjeta">
+    <img src="${IMG}" alt="Placa del pino">
+    <div class="tarjeta-cuerpo">
+      <h2>Placa del pino</h2>
+      <p class="descripcion">Placa tumbada y adherente.</p>
+    </div>
+  </article>
+</section>`,
+  css: `body {
+  margin: 0;
+  background: #eee7df;
+  color: #2b2622;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.rutas {
+  padding: 24px 16px 0;
+  text-align: center;
+}
+`,
+  sol: `body {
+  margin: 0;
+  background: #eee7df;
+  color: #2b2622;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+* { box-sizing: border-box; }
+
+.rutas {
+  padding: 24px 16px 0;
+  text-align: center;
+}
+
+.tarjeta {
+  display: inline-block;
+  vertical-align: top;
+  width: 280px;
+  max-width: 100%;
+  margin: 0 12px 32px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  text-align: left;
+}
+
+.tarjeta img {
+  display: block;
+  width: 100%;
+  height: 140px;
+  padding: 16px;
+  background: #e2d8cd;
+  border-radius: 8px 8px 0 0;
+}
+
+.tarjeta-cuerpo { padding: 20px; }
+
+.tarjeta h2 {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+
+.descripcion {
+  margin: 0;
+  color: #6b5f57;
+  font-size: 0.9rem;
+}`,
+  checks: [
+    { d: 'Tarjetas en línea y alineadas por arriba', css: ['.tarjeta', ['display', 'vertical-align', 'text-align']] },
+    { d: 'Fondo, esquinas y sombra de la tarjeta', css: ['.tarjeta', ['background-color', 'border-radius', 'box-shadow']] },
+    { d: 'Imagen: relleno, fondo y esquinas solo arriba', css: ['.tarjeta img', ['padding', 'background-color', 'border-radius']] },
+    { d: 'Textos: márgenes, tamaños y color', css: ['.tarjeta h2, .descripcion', ['margin', 'font-size', 'color']] },
+    { d: 'Las imágenes no se salen de la tarjeta', rect: '.tarjeta img' },
+    { d: 'Cada tarjeta en su sitio', rect: '.tarjeta', tol: 3 }
   ]
 }
 );
 
-/* ---- 04-layout.js ---- */
-/* ===================== BLOQUE 4 · LAYOUT ===================== */
+/* ---- 05-css-posicion.js ---- */
+/* ===================== BLOQUE · UP05 · DISPLAY, POSICIÓN, PSEUDOCLASES, TABLAS Y FORMULARIOS ===================== */
+window.EXERCISES.push(
+{
+  id: 'display-visibilidad', block: 'pos', title: 'Ocultar con o sin hueco', edit: 'css', w: 480, h: 250,
+  tags: ['display: none', 'visibility: hidden', 'inline-block'],
+  brief: `<ul><li>El aviso de cookies (<code>.cookies</code>) desaparece <strong>sin dejar hueco</strong>.</li><li>El paso <code>.pendiente</code> se oculta pero <strong>conserva su hueco</strong>, para que los otros pasos no se muevan.</li><li>Las etiquetas (<code>.tag</code>) son enlaces, de línea: haz que acepten <code>width: 70px</code> y <code>padding: 4px 0</code> sin dejar de ir en línea. Texto centrado.</li></ul>`,
+  hint: `<code>display: none</code> frente a <code>visibility: hidden</code>. Un elemento <code>inline</code> ignora <code>width</code>; uno <code>inline-block</code>, no.`,
+  html: `<p class="cookies">Usamos cookies técnicas para guardar tu progreso.</p>
+<ol class="pasos">
+  <li>Preinscripción</li>
+  <li class="pendiente">Pago de tasas</li>
+  <li>Elección de horario</li>
+</ol>
+<p>Etiquetas: <a class="tag" href="#">html</a> <a class="tag" href="#">css</a> <a class="tag" href="#">xml</a></p>`,
+  css: `body { margin: 16px; font-size: 14px; }
+.cookies { padding: 8px; background: #fef3c7; }
+.pasos li { padding: 4px; background: #e0e7ff; margin-bottom: 4px; }
+.tag { background: #1e293b; color: #fff; border-radius: 4px; text-decoration: none; }
+`,
+  sol: `body { margin: 16px; font-size: 14px; }
+.cookies { padding: 8px; background: #fef3c7; }
+.pasos li { padding: 4px; background: #e0e7ff; margin-bottom: 4px; }
+.tag { background: #1e293b; color: #fff; border-radius: 4px; text-decoration: none; }
+
+.cookies { display: none; }
+.pendiente { visibility: hidden; }
+
+.tag {
+  display: inline-block;
+  width: 70px;
+  padding: 4px 0;
+  text-align: center;
+}`,
+  checks: [
+    { d: 'El aviso de cookies no ocupa sitio', css: ['.cookies', ['display']] },
+    { d: 'El paso pendiente es invisible', css: ['.pendiente', ['visibility']] },
+    { d: 'Los pasos no se mueven', rect: '.pasos li' },
+    { d: 'Etiquetas en línea, pero con ancho y relleno', css: ['.tag', ['display', 'width', 'padding', 'text-align']] },
+    { d: 'Etiquetas en su sitio', rect: '.tag' }
+  ]
+},
+{
+  id: 'inline-block-huecos', block: 'pos', title: 'El hueco fantasma entre inline-block', edit: 'css', w: 480, h: 150,
+  tags: ['inline-block', 'espacios en blanco', 'font-size: 0'],
+  brief: `<p>Las tres pestañas miden <code>100px</code> y la barra, <code>300px</code>. Deberían caber justas, pero la tercera baja de línea y entre ellas aparecen huecos. <strong>Sin tocar el HTML</strong>, haz que queden pegadas y en una sola fila.</p>`,
+  hint: `Los saltos de línea del HTML entre las etiquetas cuentan como un espacio de texto. Un truco clásico: <code>font-size: 0</code> en el padre y devolver el tamaño a los hijos.`,
+  html: `<nav class="pestanas">
+  <a href="#">HTML</a>
+  <a href="#">CSS</a>
+  <a href="#">XML</a>
+</nav>`,
+  css: `body { margin: 24px; }
+
+.pestanas {
+  width: 300px;
+  background: #e2e8f0;
+}
+
+.pestanas a {
+  display: inline-block;
+  width: 100px;
+  padding: 8px 0;
+  text-align: center;
+  font-size: 16px;
+  background: #1e3a8a;
+  color: #fff;
+  text-decoration: none;
+}
+.pestanas a + a { background: #1d4ed8; }
+.pestanas a + a + a { background: #3b82f6; }
+`,
+  sol: `body { margin: 24px; }
+
+.pestanas {
+  width: 300px;
+  background: #e2e8f0;
+  font-size: 0;
+}
+
+.pestanas a {
+  display: inline-block;
+  width: 100px;
+  padding: 8px 0;
+  text-align: center;
+  font-size: 16px;
+  background: #1e3a8a;
+  color: #fff;
+  text-decoration: none;
+}
+.pestanas a + a { background: #1d4ed8; }
+.pestanas a + a + a { background: #3b82f6; }`,
+  checks: [
+    { d: 'Las tres pestañas en una fila, pegadas', rect: '.pestanas a', tol: 1 },
+    { d: 'Siguen midiendo 100 px y con letra de 16 px', css: ['.pestanas a', ['width', 'font-size']] },
+    { d: 'La barra sigue midiendo 300 px', css: ['.pestanas', ['width']] }
+  ]
+},
+{
+  id: 'menu-horizontal', block: 'pos', title: 'Menú horizontal', edit: 'css', w: 520, h: 120,
+  tags: ['list-style: none', 'inline-block', 'display: block', ':hover'],
+  brief: `<p>El menú clásico, sin Flexbox:</p>
+<ul><li>La lista sin viñetas, sin márgenes ni relleno y con fondo <code>#1e293b</code>.</li><li>Cada <code>li</code> en línea (<code>inline-block</code>).</li><li>Los enlaces ocupan toda su caja (<code>display: block</code>) con relleno <code>12px 16px</code>, texto <code>#e2e8f0</code> y sin subrayado.</li><li>El enlace de la página actual (<code>.actual</code>) con fondo <code>#334155</code>.</li><li><strong>Al pasar el ratón</strong>, fondo <code>#f97316</code> y texto blanco.</li></ul>`,
+  hint: `<code>.menu a:hover { … }</code>. Para que el fondo de la lista se vea, la lista tiene que tener altura: con <code>inline-block</code> la tiene; con <code>float</code> haría falta algo más.`,
+  html: `<nav class="menu">
+  <ul>
+    <li><a class="actual" href="#">Inicio</a></li><li><a href="#">Rutas</a></li><li><a href="#">Cursos</a></li><li><a href="#">Contacto</a></li>
+  </ul>
+</nav>`,
+  css: `body { margin: 16px; font-size: 15px; }
+`,
+  sol: `body { margin: 16px; font-size: 15px; }
+
+.menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: #1e293b;
+}
+
+.menu li { display: inline-block; }
+
+.menu a {
+  display: block;
+  padding: 12px 16px;
+  color: #e2e8f0;
+  text-decoration: none;
+}
+
+.menu a.actual { background: #334155; }
+
+.menu a:hover {
+  background: #f97316;
+  color: #fff;
+}`,
+  checks: [
+    { d: 'Lista sin viñetas, márgenes ni relleno', css: ['.menu ul', ['list-style-type', 'margin', 'padding', 'background-color']] },
+    { d: 'Enlaces: relleno, color y sin subrayado', css: ['.menu a', ['padding', 'color', 'text-decoration-line']] },
+    { d: 'Fondo del enlace actual', css: ['.menu a', ['background-color']] },
+    { d: 'Al pasar el ratón: fondo naranja y texto blanco', css: ['.menu a', ['background-color', 'color']], state: ':hover' },
+    { d: 'La barra y los enlaces en su sitio', rect: '.menu ul, .menu a' }
+  ]
+},
+{
+  id: 'menu-vertical', block: 'pos', title: 'Menú vertical con separadores', edit: 'css', w: 480, h: 230,
+  tags: [':first-child', ':last-child', ':hover', 'border-bottom'],
+  brief: `<ul><li>Cada elemento del menú lleva un borde inferior de <code>1px</code> sólido <code>#fcd34d</code>, <strong>menos el último</strong>.</li><li>El primer enlace va en negrita.</li><li>Los enlaces ocupan toda la fila (<code>block</code>), relleno <code>8px 12px</code>, color <code>#1e293b</code>, sin subrayado y fondo <code>#fffbeb</code>. Al pasar el ratón, fondo <code>#fde68a</code>.</li></ul>
+<p>No puedes añadir clases.</p>`,
+  hint: `<code>.lateral li:last-child { border-bottom: none; }</code> (o <code>li:not(:last-child)</code>). Ojo: <code>a:first-child</code> no sirve, porque cada <code>a</code> es el primer hijo de su <code>li</code>.`,
+  html: `<ul class="lateral">
+  <li><a href="#">Apuntes</a></li>
+  <li><a href="#">Prácticas</a></li>
+  <li><a href="#">Tests</a></li>
+  <li><a href="#">Calendario</a></li>
+</ul>`,
+  css: `body { margin: 16px; font-size: 14px; }
+.lateral { width: 180px; margin: 0; padding: 0; list-style: none; border: 2px solid #f59e0b; border-radius: 6px; overflow: hidden; }
+`,
+  sol: `body { margin: 16px; font-size: 14px; }
+.lateral { width: 180px; margin: 0; padding: 0; list-style: none; border: 2px solid #f59e0b; border-radius: 6px; overflow: hidden; }
+
+.lateral li { border-bottom: 1px solid #fcd34d; }
+.lateral li:last-child { border-bottom: none; }
+
+.lateral li:first-child a { font-weight: 700; }
+
+.lateral a {
+  display: block;
+  padding: 8px 12px;
+  color: #1e293b;
+  text-decoration: none;
+  background: #fffbeb;
+}
+
+.lateral a:hover { background: #fde68a; }`,
+  checks: [
+    { d: 'Separador debajo de cada elemento salvo el último', css: ['.lateral li', ['border-bottom-width', 'border-bottom-style', 'border-bottom-color']] },
+    { d: 'Solo el primero en negrita', css: ['.lateral a', ['font-weight']] },
+    { d: 'Enlaces: color, fondo y sin subrayado', css: ['.lateral a', ['display', 'color', 'background-color', 'text-decoration-line']] },
+    { d: 'Al pasar el ratón cambia el fondo', css: ['.lateral a', ['background-color']], state: ':hover' },
+    { d: 'Cada enlace en su sitio', rect: '.lateral a' }
+  ]
+},
+{id: 'selectores-atributo', block: 'pos', title: 'Selectores sin tocar el HTML', edit: 'css', w: 480, h: 260,
+  tags: [':nth-child', 'atributo ^= $=', 'clases'],
+  brief: `<p>No puedes añadir clases. Usa solo selectores:</p>
+<ul><li><code>.tareas</code> sin viñetas ni sangría; cada tarea con relleno <code>4px 8px</code>.</li><li>Tareas impares con fondo <code>#f1f5f9</code>.</li><li>Las <code>.hecha</code>, tachadas y en color <code>#94a3b8</code>.</li><li>Enlaces externos (empiezan por <code>http</code>) en <code>#059669</code>.</li><li>Enlaces a PDF (acaban en <code>.pdf</code>) en negrita.</li></ul>`,
+  hint: `<code>li:nth-child(odd)</code>, <code>a[href^="http"]</code>, <code>a[href$=".pdf"]</code>.`,
+  html: `<ul class="tareas">
+  <li>Leer la UP03</li>
+  <li class="hecha">Instalar VS Code</li>
+  <li class="hecha">Hacer la práctica de tablas</li>
+  <li>Subir el formulario</li>
+  <li>Repasar selectores</li>
+</ul>
+<p>Material: <a href="https://developer.mozilla.org">MDN</a>, <a href="apuntes.pdf">apuntes.pdf</a> y <a href="#up03">UP03</a>.</p>`,
+  css: `body { margin: 16px; font-size: 15px; }
+
+.tareas {
+
+}
+`,
+  sol: `body { margin: 16px; font-size: 15px; }
+
+.tareas {
+  list-style: none;
+  padding: 0;
+}
+
+.tareas li { padding: 4px 8px; }
+.tareas li:nth-child(odd) { background: #f1f5f9; }
+
+.hecha {
+  text-decoration: line-through;
+  color: #94a3b8;
+}
+
+a[href^="http"] { color: #059669; }
+a[href$=".pdf"] { font-weight: 700; }`,
+  checks: [
+    { d: 'Lista sin viñetas ni sangría', css: ['.tareas', ['list-style-type', 'padding-left']] },
+    { d: 'Relleno de cada tarea', css: ['.tareas li', ['padding']] },
+    { d: 'Fondo en las impares', css: ['.tareas li', ['background-color']] },
+    { d: 'Tareas hechas tachadas y en gris', css: ['.tareas li', ['text-decoration-line', 'color']] },
+    { d: 'Enlaces externos y PDF', css: ['a', ['color', 'font-weight']] }
+  ]},
+{
+  id: 'pseudoelementos', block: 'pos', title: 'Contenido generado y primera letra', edit: 'css', w: 480, h: 270,
+  tags: ['::before', '::after', 'content', '::first-letter'],
+  brief: `<p>Sin tocar el HTML:</p>
+<ul><li>La primera letra de la entradilla, a <code>2em</code>, en negrita y en <code>#9a3412</code>.</li><li>La lista <code>.ventajas</code> sin viñetas ni sangría; delante de cada elemento, un <code>"✔"</code> en <code>#16a34a</code> con <code>6px</code> de margen a la derecha.</li><li>Detrás de cada precio, el texto <code>" €"</code> (con el espacio).</li></ul>`,
+  hint: `<code>::before</code> y <code>::after</code> no aparecen si no tienen <code>content</code>. <code>.entradilla::first-letter { … }</code>, <code>.ventajas li::before { content: "✔"; … }</code> y <code>.precio::after { content: " €"; }</code>.`,
+  html: `<p class="entradilla">En este curso aprenderás a maquetar páginas con HTML y CSS desde cero.</p>
+<ul class="ventajas">
+  <li>Ejercicios corregidos al momento</li>
+  <li>Funciona sin internet</li>
+  <li>Guarda tu progreso</li>
+</ul>
+<p>Matrícula: <span class="precio">0</span> · Material: <span class="precio">12</span></p>`,
+  css: `body { margin: 16px; font-size: 15px; }
+p { margin: 0 0 10px; }
+`,
+  sol: `body { margin: 16px; font-size: 15px; }
+p { margin: 0 0 10px; }
+
+.entradilla::first-letter {
+  font-size: 2em;
+  font-weight: 700;
+  color: #9a3412;
+}
+
+.ventajas {
+  list-style: none;
+  padding-left: 0;
+}
+
+.ventajas li::before {
+  content: "✔";
+  color: #16a34a;
+  margin-right: 6px;
+}
+
+.precio::after { content: " €"; }`,
+  checks: [
+    { d: 'Primera letra grande, en negrita y en color', css: ['.entradilla', ['font-size', 'font-weight', 'color']], pseudo: '::first-letter' },
+    { d: 'Lista sin viñetas ni sangría', css: ['.ventajas', ['list-style-type', 'padding-left']] },
+    { d: 'Marca ✔ verde delante de cada ventaja', css: ['.ventajas li', ['content', 'color', 'margin-right']], pseudo: '::before' },
+    { d: 'Símbolo del euro detrás de cada precio', css: ['.precio', ['content']], pseudo: '::after' },
+    { d: 'Todo en su sitio', rect: '.ventajas li, .precio' }
+  ]
+},
+{
+  id: 'tabla-css', block: 'pos', title: 'Tabla de notas con estilo', edit: 'css', w: 480, h: 280,
+  tags: ['border-collapse', 'nth-child(even)', 'caption-side', 'tr:hover'],
+  brief: `<ul><li>La tabla ocupa todo el ancho y sus bordes no salen dobles.</li><li>Celdas con borde de <code>1px</code> sólido <code>#cbd5e1</code>, relleno <code>6px 10px</code> y texto a la izquierda.</li><li>Cabecera con fondo <code>#1e3a8a</code> y texto blanco.</li><li>Filas <strong>pares</strong> del cuerpo con fondo <code>#f1f5f9</code>, y la fila que tiene el ratón encima, <code>#fef3c7</code>.</li><li>El título de la tabla, <strong>debajo</strong>, en <code>13px</code> y <code>#64748b</code>.</li></ul>`,
+  hint: `<code>border-collapse: collapse</code>, <code>tbody tr:nth-child(even)</code>, <code>tbody tr:hover</code> (ponlo después del <code>nth-child</code>, que pesa lo mismo) y <code>caption-side: bottom</code>.`,
+  html: `<table>
+  <caption>Notas de la 1ª evaluación</caption>
+  <thead>
+    <tr><th>Alumno</th><th>UP01</th><th>UP02</th><th>UP03</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Ana</td><td>8</td><td>7</td><td>9</td></tr>
+    <tr><td>Luis</td><td>6</td><td>5</td><td>7</td></tr>
+    <tr><td>Marta</td><td>9</td><td>9</td><td>8</td></tr>
+    <tr><td>Pablo</td><td>5</td><td>6</td><td>6</td></tr>
+  </tbody>
+</table>`,
+  css: `body { margin: 16px; font-size: 14px; }
+`,
+  sol: `body { margin: 16px; font-size: 14px; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #cbd5e1;
+  padding: 6px 10px;
+  text-align: left;
+}
+
+thead th {
+  background: #1e3a8a;
+  color: #fff;
+}
+
+tbody tr:nth-child(even) { background: #f1f5f9; }
+tbody tr:hover { background: #fef3c7; }
+
+caption {
+  caption-side: bottom;
+  font-size: 13px;
+  color: #64748b;
+}`,
+  checks: [
+    { d: 'Bordes sencillos y todo el ancho', css: ['table', ['border-collapse']] },
+    { d: 'Celdas: borde, relleno y alineación', css: ['th, td', ['border', 'padding', 'text-align']] },
+    { d: 'Cabecera oscura con texto blanco', css: ['thead th', ['background-color', 'color']] },
+    { d: 'Filas pares con fondo', css: ['tbody tr', ['background-color']] },
+    { d: 'Fila resaltada al pasar el ratón', css: ['tbody tr', ['background-color']], state: ':hover' },
+    { d: 'Título debajo, pequeño y gris', css: ['caption', ['caption-side', 'font-size', 'color']] },
+    { d: 'Tabla en su sitio', rect: 'table, caption' }
+  ]
+},
+{
+  id: 'botones-estados', block: 'pos', title: 'Botón con hover, foco y transición', edit: 'css', w: 480, h: 130,
+  tags: [':hover', ':focus', 'cursor', 'transition', 'outline'],
+  brief: `<p>El botón de reservar necesita reaccionar:</p>
+<ul><li>Siempre: cursor de mano y una transición de <code>0.3s</code> en el color de fondo.</li><li><strong>Al pasar el ratón</strong>: fondo <code>#9e4e20</code>.</li><li><strong>Con el foco</strong> (al llegar con el tabulador): un contorno de <code>3px</code> sólido <code>#f59e0b</code> separado <code>2px</code> del botón.</li></ul>`,
+  hint: `<code>cursor: pointer</code>, <code>transition: background-color 0.3s</code>, <code>.boton:hover</code> y <code>.boton:focus</code> con <code>outline</code> y <code>outline-offset</code>. El <code>outline</code> no ocupa espacio: el botón no se mueve.`,
+  html: `<a class="boton" href="#">Reservar plaza</a>`,
+  css: `body { margin: 32px; }
+
+.boton {
+  display: inline-block;
+  padding: 10px 24px;
+  background: #c0622b;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 4px;
+}
+`,
+  sol: `body { margin: 32px; }
+
+.boton {
+  display: inline-block;
+  padding: 10px 24px;
+  background: #c0622b;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.boton:hover { background: #9e4e20; }
+
+.boton:focus {
+  outline: 3px solid #f59e0b;
+  outline-offset: 2px;
+}`,
+  checks: [
+    { d: 'Cursor de mano', css: ['.boton', ['cursor']] },
+    { d: 'Transición de 0.3 s en el fondo', css: ['.boton', ['transition-property', 'transition-duration']] },
+    { d: 'Al pasar el ratón, fondo más oscuro', css: ['.boton', ['background-color']], state: ':hover' },
+    { d: 'Con el foco, contorno separado del botón', css: ['.boton', ['outline-style', 'outline-width', 'outline-color', 'outline-offset']], state: ':focus' },
+    { d: 'Sin foco ni ratón, el botón no cambia', css: ['.boton', ['background-color', 'outline-style']] }
+  ]
+},
+{
+  id: 'formulario-css', block: 'pos', title: 'Formulario con estilo', edit: 'css', w: 480, h: 380,
+  tags: ['font: inherit', 'width: 100%', 'resize', ':focus'],
+  brief: `<ul><li>Cada <code>label</code> encima de su campo (<code>block</code>), en negrita (<code>600</code>) y con <code>12px</code> de margen arriba.</li><li>Los campos (<code>input</code> y <code>textarea</code>): todo el ancho <strong>sin salirse</strong>, relleno de <code>8px</code>, la misma fuente que la página, borde de <code>1px</code> sólido <code>#94a3b8</code> y esquinas de <code>6px</code>.</li><li>El <code>textarea</code> solo se puede agrandar en vertical.</li><li>El campo con el foco: borde <code>#1d4ed8</code> y sombra <code>0 0 0 3px #bfdbfe</code> en lugar del contorno del navegador.</li></ul>`,
+  hint: `Los campos no heredan la fuente: <code>font: inherit</code>. Para que <code>width: 100%</code> con relleno no se salga: <code>box-sizing: border-box</code>. Si quitas el <code>outline</code>, pon otro indicador de foco.`,
+  html: `<form>
+  <label for="nombre">Nombre</label>
+  <input type="text" id="nombre" name="nombre">
+  <label for="correo">Correo</label>
+  <input type="email" id="correo" name="correo">
+  <label for="mensaje">Mensaje</label>
+  <textarea id="mensaje" name="mensaje" rows="3"></textarea>
+</form>`,
+  css: `body { margin: 16px; font-family: Georgia, serif; font-size: 15px; }
+form { max-width: 320px; }
+`,
+  sol: `body { margin: 16px; font-family: Georgia, serif; font-size: 15px; }
+form { max-width: 320px; }
+
+label {
+  display: block;
+  margin-top: 12px;
+  font-weight: 600;
+}
+
+input, textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px;
+  font: inherit;
+  border: 1px solid #94a3b8;
+  border-radius: 6px;
+}
+
+textarea { resize: vertical; }
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: #1d4ed8;
+  box-shadow: 0 0 0 3px #bfdbfe;
+}`,
+  checks: [
+    { d: 'Etiquetas encima, en negrita y separadas', css: ['label', ['display', 'margin-top', 'font-weight']] },
+    { d: 'Campos con la fuente de la página', css: ['input, textarea', ['font-family', 'font-size']] },
+    { d: 'Campos: relleno, borde y esquinas', css: ['input, textarea', ['padding', 'border', 'border-radius']] },
+    { d: 'Los campos ocupan todo el ancho sin salirse', rect: 'input, textarea' },
+    { d: 'El área de texto solo crece en vertical', css: ['textarea', ['resize']] },
+    { d: 'Con el foco: borde azul y sombra', css: ['input, textarea', ['border-top-color', 'box-shadow']], state: ':focus' }
+  ]
+},
+{
+  id: 'overflow-caja', block: 'pos', title: 'Contenido que no cabe', edit: 'css', w: 480, h: 280,
+  tags: ['overflow', 'white-space: nowrap', 'text-overflow: ellipsis'],
+  brief: `<ul><li>Las condiciones (<code>.condiciones</code>) se salen de su caja de <code>110px</code>. Haz que aparezca una barra de desplazamiento vertical <strong>solo si hace falta</strong>.</li><li>Los titulares de <code>.noticias</code> deben ocupar <strong>una sola línea</strong>: lo que no quepa se corta con «…».</li></ul>`,
+  hint: `<code>overflow-y: auto</code> solo funciona si la caja tiene la altura limitada. Para una línea con puntos suspensivos hacen falta tres: <code>white-space: nowrap; overflow: hidden; text-overflow: ellipsis;</code>.`,
+  html: `<div class="condiciones">
+  <p>1. La inscripción se hace a través de la secretaría virtual.</p>
+  <p>2. El material del curso se entrega el primer día.</p>
+  <p>3. Las faltas se justifican en un plazo de tres días.</p>
+  <p>4. La evaluación es continua y hay una prueba objetiva por trimestre.</p>
+</div>
+<ul class="noticias">
+  <li>Abierto el plazo de preinscripción para los ciclos de grado superior en modalidad semipresencial</li>
+  <li>Nuevo horario de tutorías colectivas</li>
+</ul>`,
+  css: `body { margin: 16px; font-size: 14px; }
+.condiciones { height: 110px; padding: 0 8px; border: 1px solid #cbd5e1; border-radius: 6px; }
+.condiciones p { margin: 6px 0; }
+.noticias { width: 300px; padding-left: 20px; }
+`,
+  sol: `body { margin: 16px; font-size: 14px; }
+.condiciones { height: 110px; padding: 0 8px; border: 1px solid #cbd5e1; border-radius: 6px; }
+.condiciones p { margin: 6px 0; }
+.noticias { width: 300px; padding-left: 20px; }
+
+.condiciones { overflow-y: auto; }
+
+.noticias li {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}`,
+  checks: [
+    { d: 'Barra de desplazamiento vertical cuando hace falta', css: ['.condiciones', ['overflow-y']] },
+    { d: 'La caja sigue midiendo lo mismo', rect: '.condiciones' },
+    { d: 'Titulares en una sola línea', css: ['.noticias li', ['white-space']] },
+    { d: 'Lo que no cabe se corta con «…»', css: ['.noticias li', ['overflow-x', 'text-overflow']] },
+    { d: 'Cada titular mide una línea', rect: '.noticias li' }
+  ]
+},
+{
+  id: 'float-imagen', block: 'pos', title: 'Imagen flotante y padre que no crece', edit: 'css', w: 480, h: 330,
+  tags: ['float', 'clearfix', 'overflow: hidden', 'clear'],
+  brief: `<ul><li>La miniatura de cada noticia <strong>flota a la izquierda</strong>, con <code>110px</code> de ancho y un margen de <code>0 12px 8px 0</code>, para que el texto la rodee.</li><li>Al flotar, la imagen sale del flujo y la tarjeta ya no la contiene: se mete en la noticia siguiente. Haz que cada <code>.noticia</code> crezca para envolver su imagen.</li></ul>`,
+  hint: `El padre de un flotante no crece por él. Soluciones: <code>overflow: hidden</code> en el padre, el <em>clearfix</em> (<code>.noticia::after { content: ""; display: block; clear: both; }</code>) o <code>display: flow-root</code>.`,
+  html: `<article class="noticia">
+  <img src="${IMG}" alt="Montañas">
+  <h2>Salida a la Serra Gelada</h2>
+  <p>Ruta costera.</p>
+</article>
+<article class="noticia">
+  <img src="${IMG}" alt="Montañas">
+  <h2>Curso de nudos</h2>
+  <p>Sábado por la mañana.</p>
+</article>`,
+  css: `body { margin: 16px; font-size: 14px; }
+.noticia { background: #f1f5f9; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+.noticia h2 { margin: 0 0 4px; font-size: 16px; }
+.noticia p { margin: 0; }
+.noticia img { display: block; height: 70px; border-radius: 6px; }
+`,
+  sol: `body { margin: 16px; font-size: 14px; }
+.noticia { background: #f1f5f9; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+.noticia h2 { margin: 0 0 4px; font-size: 16px; }
+.noticia p { margin: 0; }
+.noticia img { display: block; height: 70px; border-radius: 6px; }
+
+.noticia img {
+  float: left;
+  width: 110px;
+  margin: 0 12px 8px 0;
+}
+
+.noticia { overflow: hidden; }`,
+  checks: [
+    { d: 'La imagen flota a la izquierda', css: ['.noticia img', ['float']] },
+    { d: 'Ancho y margen de la imagen', css: ['.noticia img', ['width', 'margin']] },
+    { d: 'Cada noticia envuelve su imagen', rect: '.noticia' },
+    { d: 'Los textos rodean la imagen', rect: '.noticia h2, .noticia p' }
+  ]
+},
+{id: 'contador-posicion', block: 'pos', title: 'Contador de notificaciones', edit: 'css', w: 480, h: 140,
+  tags: ['position: relative', 'position: absolute', 'top/right'],
+  brief: `<p>Coloca el contador rojo sobre la esquina superior derecha del botón, desplazado <code>8px</code> hacia fuera en ambos ejes. Es un círculo de <code>22px</code> con el número centrado.</p>`,
+  hint: `El botón es la referencia: <code>position: relative</code>. El contador: <code>position: absolute; top: -8px; right: -8px</code>.`,
+  html: `<button class="campana">Avisos<span class="contador">3</span></button>`,
+  css: `body { margin: 32px; }
+
+.campana {
+  padding: 10px 16px;
+  font: inherit;
+  border: 0;
+  border-radius: 8px;
+  background: #e2e8f0;
+}
+
+.contador {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #e11d48;
+  color: #fff;
+  font-size: 12px;
+}
+`,
+  sol: `body { margin: 32px; }
+
+.campana {
+  position: relative;
+  padding: 10px 16px;
+  font: inherit;
+  border: 0;
+  border-radius: 8px;
+  background: #e2e8f0;
+}
+
+.contador {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #e11d48;
+  color: #fff;
+  font-size: 12px;
+  display: grid;
+  place-items: center;
+}`,
+  checks: [
+    { d: 'El botón es la referencia de posición', css: ['.campana', ['position']] },
+    { d: 'El contador está posicionado de forma absoluta', css: ['.contador', ['position']] },
+    { d: 'El botón no cambia de tamaño', rect: '.campana' },
+    { d: 'Contador en la esquina, 22 × 22', rect: '.contador' }
+  ]
+},
+{
+  id: 'capas-z-index', block: 'pos', title: 'Capas: relative, absolute y z-index', edit: 'css', w: 480, h: 230,
+  tags: ['position: relative', 'z-index', 'top / left'],
+  brief: `<p>Tres cartas apiladas. Sin cambiar el orden del HTML:</p>
+<ul><li>La carta <code>.destacada</code> debe quedar <strong>encima</strong> de las otras dos.</li><li>La carta <code>.torcida</code> se desplaza <code>10px</code> hacia abajo y <code>10px</code> hacia la derecha <strong>respecto a su sitio</strong>, sin mover nada más.</li></ul>`,
+  hint: `<code>z-index</code> solo funciona en elementos posicionados (las cartas ya lo están). El número mayor queda delante. Para mover algo respecto a su sitio sin que los demás se enteren: <code>position: relative</code> con <code>top</code> y <code>left</code>.`,
+  html: `<div class="mesa">
+  <div class="carta destacada">A</div>
+  <div class="carta">B</div>
+  <div class="carta">C</div>
+</div>
+<p class="torcida">Carta suelta</p>`,
+  css: `body { margin: 16px; }
+.mesa { position: relative; height: 120px; }
+.carta {
+  position: absolute;
+  top: 0;
+  width: 80px;
+  height: 110px;
+  border: 2px solid #1e293b;
+  border-radius: 8px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+}
+.carta:nth-child(1) { left: 60px; background: #fde68a; }
+.carta:nth-child(2) { left: 0; }
+.carta:nth-child(3) { left: 120px; }
+.torcida { display: inline-block; margin: 16px 0 0; padding: 6px 10px; background: #e0e7ff; }
+`,
+  sol: `body { margin: 16px; }
+.mesa { position: relative; height: 120px; }
+.carta {
+  position: absolute;
+  top: 0;
+  width: 80px;
+  height: 110px;
+  border: 2px solid #1e293b;
+  border-radius: 8px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+}
+.carta:nth-child(1) { left: 60px; background: #fde68a; }
+.carta:nth-child(2) { left: 0; }
+.carta:nth-child(3) { left: 120px; }
+.torcida { display: inline-block; margin: 16px 0 0; padding: 6px 10px; background: #e0e7ff; }
+
+.destacada { z-index: 1; }
+
+.torcida {
+  position: relative;
+  top: 10px;
+  left: 10px;
+}`,
+  checks: [
+    { d: 'La carta destacada queda encima de las otras', js: (U) => { const d = U.q('.destacada'); if (!d) return 'No encuentro .destacada'; const r = d.getBoundingClientRect(); const pts = [[r.left + 6, r.top + r.height / 2], [r.right - 6, r.top + r.height / 2]]; return pts.every(([x, y]) => d.contains(U.doc.elementFromPoint(x, y))) || 'Alguna carta tapa a la destacada'; } },
+    { d: 'Las cartas no se mueven', rect: '.carta' },
+    { d: 'La carta suelta se desplaza 10 px abajo y a la derecha', rect: '.torcida' },
+    { d: 'La carta suelta se mueve con <code>position: relative</code>', css: ['.torcida', ['position']] }
+  ]
+},
+{
+  id: 'cabecera-sticky', block: 'pos', title: 'Cabecera pegajosa y botón fijo', edit: 'css', w: 480, h: 260,
+  tags: ['position: sticky', 'position: fixed', 'z-index'],
+  brief: `<p>Haz scroll en la vista previa:</p>
+<ul><li>La cabecera se queda <strong>pegada arriba</strong> al bajar, por encima del contenido.</li><li>El botón «Subir» está <strong>siempre</strong> en la esquina inferior derecha de la ventana, a <code>16px</code> de cada borde.</li></ul>`,
+  hint: `<code>position: sticky; top: 0;</code> (sin el <code>top</code> no se pega) y <code>z-index</code> para que el texto pase por debajo. El botón: <code>position: fixed; right: 16px; bottom: 16px;</code>.`,
+  html: `<header class="cabecera">Apuntes de CSS · UP05</header>
+<main>
+  <p>El valor por defecto de position es static: los elementos siguen el flujo normal.</p>
+  <p>Con relative el elemento se desplaza respecto a su posición normal, pero su hueco se conserva.</p>
+  <p>Con absolute sale del flujo y se coloca respecto al ancestro posicionado más cercano.</p>
+  <p>Con fixed se coloca respecto a la ventana y no se mueve al hacer scroll.</p>
+  <p>Con sticky se comporta como relative hasta que llega al umbral; entonces se queda pegado.</p>
+  <p>z-index decide qué elemento queda delante, pero solo en elementos posicionados.</p>
+  <p>Un elemento absolute dentro de un padre static se coloca respecto a la página.</p>
+  <p>Las propiedades top, right, bottom y left no hacen nada en un elemento static.</p>
+  <p>float saca el elemento del flujo y el texto lo rodea.</p>
+</main>
+<a class="subir" href="#">Subir</a>`,
+  css: `body { margin: 0; font-size: 14px; }
+.cabecera { padding: 12px 16px; background: #0f172a; color: #fff; font-weight: 700; }
+main { padding: 0 16px; }
+main p { margin: 0; padding: 12px 0; border-bottom: 1px solid #e2e8f0; position: relative; }
+.subir { padding: 8px 12px; background: #f97316; color: #fff; border-radius: 999px; text-decoration: none; }
+`,
+  sol: `body { margin: 0; font-size: 14px; }
+.cabecera { padding: 12px 16px; background: #0f172a; color: #fff; font-weight: 700; }
+main { padding: 0 16px; }
+main p { margin: 0; padding: 12px 0; border-bottom: 1px solid #e2e8f0; position: relative; }
+.subir { padding: 8px 12px; background: #f97316; color: #fff; border-radius: 999px; text-decoration: none; }
+
+.cabecera {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.subir {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+}`,
+  checks: [
+    { d: 'Cabecera <code>sticky</code> pegada arriba', css: ['.cabecera', ['position', 'top']] },
+    { d: 'Al bajar, la cabecera sigue arriba', js: rectAfterScroll('.cabecera', 150) },
+    { d: 'La cabecera queda por encima del texto', js: (U) => { const se = U.doc.scrollingElement; se.scrollTop = 150; const h = U.q('.cabecera'); const r = h.getBoundingClientRect(); const top = U.doc.elementFromPoint(r.left + 40, r.top + r.height / 2); se.scrollTop = 0; return (top && h.contains(top)) || 'Al bajar, el texto tapa la cabecera'; } },
+    { d: 'Botón fijo en la esquina inferior derecha', rect: '.subir' },
+    { d: 'Al bajar, el botón no se mueve', js: rectAfterScroll('.subir', 150) }
+  ]
+}
+);
+
+/* ---- 06-css-flexbox.js ---- */
+/* ===================== BLOQUE · UP06 · FLEXBOX Y MEDIA QUERIES ===================== */
 window.EXERCISES.push(
 {
   id: 'navbar-flex', block: 'lay', title: 'Barra de navegación con flexbox', edit: 'css', w: 560, h: 130,
@@ -14477,10 +16357,40 @@ window.EXERCISES.push(
     { d: 'Lista sin viñetas ni márgenes', css: ['.menu', ['list-style-type', 'margin', 'padding']] },
     { d: 'Altura de la barra correcta', rect: '.nav' },
     { d: 'Logo y enlaces en su sitio', rect: '.logo, .menu li' }
+  ]},
+{
+  id: 'flex-justify', block: 'lay', title: 'Tres filas, tres repartos', edit: 'css', w: 480, h: 250,
+  tags: ['justify-content', 'align-items', 'eje principal'],
+  brief: `<p>Las tres filas ya son contenedores flex. Reparte sus hijos en el eje principal:</p>
+<ul><li><code>.fila-1</code>: todo pegado a la <strong>derecha</strong>.</li><li><code>.fila-2</code>: el primero al principio, el último al final y el sobrante repartido <strong>entre</strong> ellos.</li><li><code>.fila-3</code>: el mismo espacio alrededor de cada uno, también en los extremos (<code>space-evenly</code>), y centrados en vertical en su fila de <code>70px</code>.</li></ul>`,
+  hint: `<code>justify-content</code>: <code>flex-end</code>, <code>space-between</code>, <code>space-evenly</code>. El centrado vertical en una fila es el eje secundario: <code>align-items: center</code>.`,
+  html: `<div class="fila fila-1"><span>Guardar</span><span>Enviar</span></div>
+<div class="fila fila-2"><span>« Anterior</span><span>1 / 6</span><span>Siguiente »</span></div>
+<div class="fila fila-3"><span>HTML</span><span>CSS</span><span>XML</span><span>JS</span></div>`,
+  css: `body { margin: 16px; font-size: 14px; }
+.fila { display: flex; gap: 8px; padding: 8px; margin-bottom: 10px; background: #f1f5f9; border-radius: 8px; }
+.fila span { padding: 6px 10px; background: #1e3a8a; color: #fff; border-radius: 6px; }
+.fila-3 { height: 70px; box-sizing: border-box; gap: 0; }
+`,
+  sol: `body { margin: 16px; font-size: 14px; }
+.fila { display: flex; gap: 8px; padding: 8px; margin-bottom: 10px; background: #f1f5f9; border-radius: 8px; }
+.fila span { padding: 6px 10px; background: #1e3a8a; color: #fff; border-radius: 6px; }
+.fila-3 { height: 70px; box-sizing: border-box; gap: 0; }
+
+.fila-1 { justify-content: flex-end; }
+.fila-2 { justify-content: space-between; }
+.fila-3 {
+  justify-content: space-evenly;
+  align-items: center;
+}`,
+  checks: [
+    { d: 'Fila 1 pegada a la derecha', rect: '.fila-1 span' },
+    { d: 'Fila 2 con el sobrante entre los elementos', rect: '.fila-2 span' },
+    { d: 'Fila 3 repartida y centrada en vertical', rect: '.fila-3 span' },
+    { d: 'Usas <code>justify-content</code>', css: ['.fila', ['justify-content']] }
   ]
 },
-{
-  id: 'centrado-total', block: 'lay', title: 'Centrado perfecto', edit: 'css', w: 480, h: 240,
+{id: 'centrado-total', block: 'lay', title: 'Centrado perfecto', edit: 'css', w: 480, h: 240,
   tags: ['flex', 'grid', 'place-items', '100vh'],
   brief: `<p>El mensaje debe quedar justo en el centro de la pantalla, en horizontal y en vertical. La sección ocupa toda la altura de la ventana.</p>`,
   hint: `Dos opciones: <code>display: flex; justify-content: center; align-items: center</code> o <code>display: grid; place-items: center</code>. Y <code>height: 100vh</code> en la sección.`,
@@ -14519,10 +16429,53 @@ window.EXERCISES.push(
   checks: [
     { d: 'La sección ocupa toda la ventana', rect: '.hero' },
     { d: 'El mensaje está centrado', rect: '.msg' }
+  ]},
+{
+  id: 'flex-columna', block: 'lay', title: 'En columna, los ejes se cambian', edit: 'css', w: 480, h: 290,
+  tags: ['flex-direction: column', 'align-items', 'gap'],
+  brief: `<ul><li><code>.perfil</code>: sus hijos uno debajo de otro, <strong>centrados en horizontal</strong> y separados <code>8px</code>.</li><li><code>.acciones</code>: los dos botones en fila, separados <code>12px</code>.</li></ul>
+<p>Pista visual: con <code>flex-direction: column</code>, ¿qué propiedad centra ahora en horizontal?</p>`,
+  hint: `Con <code>column</code> el eje principal es el vertical: <code>justify-content</code> reparte de arriba abajo y <code>align-items</code> alinea de izquierda a derecha.`,
+  html: `<div class="perfil">
+  <img src="${AVATAR}" alt="Foto de perfil">
+  <h2>Laura Ferrer</h2>
+  <p>Tutora de 1º de DAM</p>
+  <div class="acciones">
+    <a href="#">Escribir</a>
+    <a href="#">Ver horario</a>
+  </div>
+</div>`,
+  css: `body { margin: 16px; font-size: 14px; }
+.perfil { padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; }
+.perfil img { width: 72px; height: 72px; border-radius: 50%; }
+.perfil h2, .perfil p { margin: 0; }
+.acciones a { padding: 6px 12px; background: #4338ca; color: #fff; border-radius: 6px; text-decoration: none; }
+`,
+  sol: `body { margin: 16px; font-size: 14px; }
+.perfil { padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; }
+.perfil img { width: 72px; height: 72px; border-radius: 50%; }
+.perfil h2, .perfil p { margin: 0; }
+.acciones a { padding: 6px 12px; background: #4338ca; color: #fff; border-radius: 6px; text-decoration: none; }
+
+.perfil {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.acciones {
+  display: flex;
+  gap: 12px;
+}`,
+  checks: [
+    { d: '<code>.perfil</code> en columna', css: ['.perfil', ['display', 'flex-direction']] },
+    { d: 'Hijos del perfil centrados y separados', rect: '.perfil > *' },
+    { d: '<code>.acciones</code> en fila con su hueco', css: ['.acciones', ['display', 'column-gap']] },
+    { d: 'Botones en su sitio', rect: '.acciones a' }
   ]
 },
-{
-  id: 'tarjetas-flex-wrap', block: 'lay', title: 'Tarjetas que se reparten', edit: 'css', w: 480, h: 260,
+{id: 'tarjetas-flex-wrap', block: 'lay', title: 'Tarjetas que se reparten', edit: 'css', w: 480, h: 260,
   tags: ['flex-wrap', 'flex: 1 1 140px', 'gap'],
   brief: `<p>Las tarjetas se colocan en fila y saltan de línea cuando no caben. Cada una mide como mínimo <code>140px</code> y crece para rellenar el hueco. Separación de <code>12px</code> en ambas direcciones.</p>`,
   hint: `<code>.cards { display: flex; flex-wrap: wrap; gap: 12px }</code> y <code>.card { flex: 1 1 140px }</code>. Fíjate en que la última fila se estira: eso con grid no sale igual.`,
@@ -14563,10 +16516,401 @@ window.EXERCISES.push(
     { d: '<code>.cards</code> flex con salto de línea y gap', css: ['.cards', ['display', 'flex-wrap', 'gap']] },
     { d: 'Las tarjetas crecen desde 140px', css: ['.card', ['flex-grow', 'flex-shrink', 'flex-basis']] },
     { d: 'Cada tarjeta en su sitio', rect: '.card' }
+  ]},
+{
+  id: 'flex-crecer', block: 'lay', title: 'Lateral fijo y contenido elástico', edit: 'css', w: 560, h: 230,
+  tags: ['flex: 1', 'flex: 0 0 160px', 'flex-basis'],
+  brief: `<ul><li><code>.pagina</code>: lateral y contenido en fila, separados <code>16px</code>.</li><li><code>.lateral</code>: siempre <code>160px</code>, ni crece ni encoge.</li><li><code>.contenido</code>: ocupa todo el espacio que sobre.</li><li>En el <code>.buscador</code>, el campo se estira y el botón mide lo que su texto.</li></ul>`,
+  hint: `<code>flex: 0 0 160px</code> (no crece, no encoge, parte de 160px) y <code>flex: 1</code> (crece para repartirse lo que sobra). El buscador es otro contenedor flex.`,
+  html: `<div class="pagina">
+  <aside class="lateral">
+    <p>UP01 · UP02 · UP03 · UP04 · UP05 · UP06</p>
+  </aside>
+  <main class="contenido">
+    <form class="buscador">
+      <input type="search" aria-label="Buscar" placeholder="Buscar en los apuntes">
+      <button>Buscar</button>
+    </form>
+    <p>Flexbox reparte el espacio sobrante entre los hijos según su flex-grow.</p>
+  </main>
+</div>`,
+  css: `body { margin: 16px; font-size: 14px; }
+.lateral { padding: 12px; background: #1e293b; color: #e2e8f0; border-radius: 8px; }
+.lateral p { margin: 0; }
+.contenido { padding: 12px; background: #f1f5f9; border-radius: 8px; }
+.contenido p { margin: 12px 0 0; }
+.buscador { gap: 8px; }
+.buscador input, .buscador button { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid #94a3b8; }
+.buscador button { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
+`,
+  sol: `body { margin: 16px; font-size: 14px; }
+.lateral { padding: 12px; background: #1e293b; color: #e2e8f0; border-radius: 8px; }
+.lateral p { margin: 0; }
+.contenido { padding: 12px; background: #f1f5f9; border-radius: 8px; }
+.contenido p { margin: 12px 0 0; }
+.buscador { gap: 8px; }
+.buscador input, .buscador button { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid #94a3b8; }
+.buscador button { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
+
+.pagina {
+  display: flex;
+  gap: 16px;
+}
+
+.lateral { flex: 0 0 160px; }
+.contenido { flex: 1; }
+
+.buscador { display: flex; }
+.buscador input { flex: 1; }`,
+  checks: [
+    { d: 'Lateral de 160 px que ni crece ni encoge', css: ['.lateral', ['flex-grow', 'flex-shrink', 'flex-basis']] },
+    { d: 'Lateral y contenido en su sitio', rect: '.lateral, .contenido' },
+    { d: 'El campo de búsqueda se estira', rect: '.buscador input, .buscador button' }
   ]
 },
 {
-  id: 'galeria-grid', block: 'lay', title: 'Galería con grid', edit: 'css', w: 480, h: 300,
+  id: 'flex-order-align', block: 'lay', title: 'order y align-self', edit: 'css', w: 480, h: 200,
+  tags: ['order', 'align-self', 'align-items'],
+  brief: `<p>Tarjeta de oferta. Sin tocar el HTML:</p>
+<ul><li>Los hijos de <code>.oferta</code> van en fila, centrados en vertical y separados <code>12px</code>.</li><li>El precio se muestra <strong>el primero</strong>, aunque en el HTML vaya el último.</li><li>La insignia «Nuevo» se alinea <strong>arriba</strong>, ella sola.</li></ul>`,
+  hint: `<code>order: -1</code> adelanta un elemento (todos tienen <code>0</code> por defecto). <code>align-self: flex-start</code> cambia la alineación de un hijo concreto.`,
+  html: `<article class="oferta">
+  <span class="insignia">Nuevo</span>
+  <div class="texto">
+    <h2>Curso de Flexbox</h2>
+    <p>Seis sesiones prácticas con ejercicios de examen.</p>
+  </div>
+  <p class="precio">25 €</p>
+</article>`,
+  css: `body { margin: 16px; font-size: 14px; }
+.oferta { height: 130px; box-sizing: border-box; padding: 12px; background: #fff7ed; border: 1px solid #fdba74; border-radius: 10px; }
+.insignia { padding: 2px 8px; background: #ea580c; color: #fff; border-radius: 999px; font-size: 12px; font-weight: 700; }
+.texto h2 { margin: 0 0 4px; font-size: 17px; }
+.texto p { margin: 0; }
+.precio { margin: 0; font-size: 26px; font-weight: 800; color: #9a3412; }
+`,
+  sol: `body { margin: 16px; font-size: 14px; }
+.oferta { height: 130px; box-sizing: border-box; padding: 12px; background: #fff7ed; border: 1px solid #fdba74; border-radius: 10px; }
+.insignia { padding: 2px 8px; background: #ea580c; color: #fff; border-radius: 999px; font-size: 12px; font-weight: 700; }
+.texto h2 { margin: 0 0 4px; font-size: 17px; }
+.texto p { margin: 0; }
+.precio { margin: 0; font-size: 26px; font-weight: 800; color: #9a3412; }
+
+.oferta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.precio { order: -1; }
+.insignia { align-self: flex-start; }`,
+  checks: [
+    { d: 'Fila centrada en vertical con hueco', css: ['.oferta', ['display', 'align-items', 'column-gap']] },
+    { d: 'El precio va el primero', rect: '.precio' },
+    { d: 'La insignia, arriba', rect: '.insignia' },
+    { d: 'El texto en su sitio', rect: '.texto' },
+    { d: 'Sin tocar el orden del HTML: con <code>order</code>', css: ['.precio', ['order']] }
+  ]
+},
+{id: 'pie-pegado', block: 'lay', title: 'Pie pegado abajo', edit: 'css', w: 480, h: 300,
+  tags: ['flex-direction: column', 'flex: 1', 'height: 100%'],
+  brief: `<p>Hay poco contenido y el pie se queda a media pantalla. Haz que el pie quede siempre abajo del todo, estirando el <code>main</code>.</p>`,
+  hint: `<code>body</code> como columna flex de al menos toda la altura (<code>min-height: 100vh</code>) y <code>main { flex: 1 }</code>.`,
+  html: `<header>LMSGI</header>
+<main><p>Poco contenido por aquí.</p></main>
+<footer>© 2026 IES Severo Ochoa</footer>`,
+  css: `body {
+  margin: 0;
+}
+
+header { padding: 12px; background: #0f172a; color: #fff; }
+main { padding: 12px; }
+main p { margin: 0; }
+footer { padding: 12px; background: #e2e8f0; }
+`,
+  sol: `body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header { padding: 12px; background: #0f172a; color: #fff; }
+main { padding: 12px; flex: 1; }
+main p { margin: 0; }
+footer { padding: 12px; background: #e2e8f0; }`,
+  checks: [
+    { d: 'El <code>main</code> se estira', rect: 'main' },
+    { d: 'El pie toca el borde inferior', rect: 'footer' }
+  ]},
+{id: 'variables-css', block: 'lay', title: 'Etiquetas con variables CSS', edit: 'css', w: 480, h: 110,
+  tags: [':root', 'custom properties', 'var()'],
+  brief: `<p>Define en <code>:root</code> las variables <code>--html: #e34c26</code>, <code>--css: #264de4</code>, <code>--js: #f0db4f</code> y <code>--radio: 999px</code>, y úsalas con <code>var()</code>:</p>
+<ul><li><code>.badge</code>: <code>inline-block</code>, relleno <code>4px 12px</code>, radio <code>var(--radio)</code>, fondo <code>var(--html)</code>, texto blanco en negrita 700, tamaño <code>14px</code>.</li><li><code>.badge-css</code> y <code>.badge-js</code> cambian el fondo. La de JS lleva texto <code>#1f2937</code>.</li></ul>`,
+  hint: `<code>:root { --html: #e34c26; }</code> y luego <code>background: var(--html);</code>.`,
+  html: `<span class="badge">HTML</span>
+<span class="badge badge-css">CSS</span>
+<span class="badge badge-js">JS</span>`,
+  css: `body { margin: 24px; }
+
+:root {
+
+}
+`,
+  sol: `body { margin: 24px; }
+
+:root {
+  --html: #e34c26;
+  --css: #264de4;
+  --js: #f0db4f;
+  --radio: 999px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--radio);
+  background: var(--html);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.badge-css { background: var(--css); }
+.badge-js { background: var(--js); color: #1f2937; }`,
+  checks: [
+    { d: 'Variables <code>--html</code>, <code>--css</code>, <code>--js</code> y <code>--radio</code> en <code>:root</code>', js: (U) => { const cs = U.doc.defaultView.getComputedStyle(U.doc.documentElement); const miss = ['--html', '--css', '--js', '--radio'].filter((v) => cs.getPropertyValue(v).trim() === ''); return miss.length === 0 || 'Faltan: ' + miss.join(', '); } },
+    { d: 'Usas <code>var()</code> al menos 4 veces', js: (U, S, src) => (src.css.match(/var\(\s*--/g) || []).length >= 4 || 'Solo ' + (src.css.match(/var\(\s*--/g) || []).length + ' usos de var()' },
+    { d: 'Colores de fondo y texto de cada etiqueta', css: ['.badge', ['background-color', 'color']] },
+    { d: 'Forma: display, relleno, radio, tipografía', css: ['.badge', ['display', 'padding', 'border-radius', 'font-weight', 'font-size']] }
+  ]
+},
+{
+  id: 'botones-sombras', block: 'lay', title: 'Sombras, cursor y una transición', edit: 'css', w: 480, h: 220,
+  tags: ['box-shadow', 'text-shadow', 'cursor', 'transform', 'transition'],
+  brief: `<ul><li>El título lleva una sombra de texto <code>1px 1px 2px rgba(0, 0, 0, 0.3)</code>.</li><li><code>.cta</code>: sombra <code>0 4px 12px rgba(0, 0, 0, 0.2)</code>, cursor de mano y una transición de <code>0.2s</code> en <code>transform</code>.</li><li><strong>Al pasar el ratón</strong>: crece un 10 % (<code>scale(1.1)</code>).</li><li><code>.ayuda</code> muestra el cursor de ayuda (la flecha con interrogación).</li></ul>`,
+  hint: `<code>text-shadow</code> y <code>box-shadow</code> se escriben igual: desplazamiento x, y, desenfoque y color. <code>cursor: pointer</code> y <code>cursor: help</code>. <code>transform: scale(1.1)</code> en el <code>:hover</code>.`,
+  html: `<section class="portada">
+  <h1>Semana de la programación</h1>
+  <a class="cta" href="#">Apúntate</a>
+  <p><abbr class="ayuda" title="Hackatón: maratón de programación por equipos">¿Qué es un hackatón?</abbr></p>
+</section>`,
+  css: `body { margin: 0; }
+.portada { padding: 24px; text-align: center; background: #ecfeff; }
+h1 { margin: 0 0 16px; font-size: 26px; color: #155e75; }
+.cta { display: inline-block; padding: 10px 24px; background: #0891b2; color: #fff; font-weight: 700; border-radius: 999px; text-decoration: none; }
+p { margin: 16px 0 0; font-size: 14px; }
+`,
+  sol: `body { margin: 0; }
+.portada { padding: 24px; text-align: center; background: #ecfeff; }
+h1 { margin: 0 0 16px; font-size: 26px; color: #155e75; }
+.cta { display: inline-block; padding: 10px 24px; background: #0891b2; color: #fff; font-weight: 700; border-radius: 999px; text-decoration: none; }
+p { margin: 16px 0 0; font-size: 14px; }
+
+h1 { text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); }
+
+.cta {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.cta:hover { transform: scale(1.1); }
+
+.ayuda { cursor: help; }`,
+  checks: [
+    { d: 'Sombra de texto en el título', css: ['h1', ['text-shadow']] },
+    { d: 'Sombra y cursor del botón', css: ['.cta', ['box-shadow', 'cursor']] },
+    { d: 'Transición de 0.2 s en <code>transform</code>', css: ['.cta', ['transition-property', 'transition-duration']] },
+    { d: 'Al pasar el ratón, crece un 10 %', css: ['.cta', ['transform']], state: ':hover' },
+    { d: 'Cursor de ayuda', css: ['.ayuda', ['cursor']] }
+  ]
+},
+{id: 'responsive-planes', block: 'lay', title: 'Mobile first: de 1 a 3 columnas', edit: 'css', w: 720, h: 300, views: [400, 720],
+  tags: ['@media', 'min-width', 'mobile first', 'flex-direction'],
+  brief: `<p>En móvil las tarjetas van una debajo de otra (ya funciona). A partir de <code>600px</code> de ancho deben ponerse en <strong>3 columnas iguales</strong>. Usa los botones de ancho para ver las dos versiones.</p>`,
+  hint: `Mobile first: el CSS base es el del móvil y la media query añade lo de pantallas grandes: dentro de <code>@media (min-width: 600px) { … }</code>, <code>.planes</code> pasa a <code>flex-direction: row</code> y cada <code>.plan</code> lleva <code>flex: 1</code> para medir lo mismo.`,
+  html: `<div class="planes">
+  <article class="plan"><h3>Básico</h3><p>Apuntes y ejercicios</p></article>
+  <article class="plan"><h3>Pro</h3><p>Más corrección guiada</p></article>
+  <article class="plan"><h3>Centro</h3><p>Para todo el ciclo</p></article>
+</div>`,
+  css: `body { margin: 16px; }
+
+.planes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.plan { padding: 16px; border: 1px solid #cbd5e1; border-radius: 10px; }
+.plan h3 { margin: 0 0 4px; }
+.plan p { margin: 0; color: #475569; }
+`,
+  sol: `body { margin: 16px; }
+
+.planes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.plan { padding: 16px; border: 1px solid #cbd5e1; border-radius: 10px; }
+.plan h3 { margin: 0 0 4px; }
+.plan p { margin: 0; color: #475569; }
+
+@media (min-width: 600px) {
+  .planes { flex-direction: row; }
+  .plan { flex: 1; }
+}`,
+  checks: [
+    { d: 'Usas una media query <code>min-width</code>', src: ['css', /@media[^{]*min-width/], msg: 'No veo @media (min-width: …)' },
+    { d: 'En móvil, una columna', rect: '.plan', w: 400 },
+    { d: 'En escritorio, tres columnas', rect: '.plan', w: 720 }
+  ]},
+{
+  id: 'cabecera-responsive', block: 'lay', title: 'Cabecera móvil y de escritorio', edit: 'css', w: 800, h: 230, views: [400, 800],
+  tags: ['mobile first', '@media (min-width)', 'space-between'],
+  brief: `<p>Como en la actividad de la UP06: en el móvil la cabecera ya está bien (todo centrado, en columna). A partir de <code>768px</code>:</p>
+<ul><li>La cabecera es una <strong>fila</strong>: logo a la izquierda, botón a la derecha y el menú entre los dos, todo centrado en vertical.</li><li>El logo y el menú pierden su margen inferior, que en el móvil separaba las líneas y ahora descoloca la fila.</li></ul>
+<p>El menú ya es flex en las dos versiones. Prueba los dos anchos.</p>`,
+  hint: `Todo dentro de <code>@media (min-width: 768px) { … }</code>, al final de la hoja: <code>.cabecera { display: flex; justify-content: space-between; align-items: center; }</code> y <code>.logo, .menu { margin-bottom: 0; }</code>.`,
+  html: `<header class="cabecera">
+  <p class="logo">Club <span>Granito</span></p>
+  <ul class="menu">
+    <li><a href="#">Rutas</a></li>
+    <li><a href="#">Cursos</a></li>
+    <li><a href="#">Contacto</a></li>
+  </ul>
+  <a class="boton" href="#">Hazte socio</a>
+</header>`,
+  css: `body { margin: 0; font-family: system-ui, sans-serif; }
+
+.cabecera {
+  padding: 16px;
+  text-align: center;
+  background: #eee7df;
+  border-bottom: 1px solid #d6cbc0;
+}
+
+.logo { margin: 0 0 12px; font-size: 1.5rem; font-weight: 700; }
+.logo span { color: #c0622b; }
+
+.menu {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+}
+.menu a { color: #2b2622; text-decoration: none; }
+
+.boton { display: inline-block; padding: 8px 20px; background: #c0622b; color: #fff; border-radius: 4px; text-decoration: none; }
+
+/* Escritorio */
+`,
+  sol: `body { margin: 0; font-family: system-ui, sans-serif; }
+
+.cabecera {
+  padding: 16px;
+  text-align: center;
+  background: #eee7df;
+  border-bottom: 1px solid #d6cbc0;
+}
+
+.logo { margin: 0 0 12px; font-size: 1.5rem; font-weight: 700; }
+.logo span { color: #c0622b; }
+
+.menu {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+}
+.menu a { color: #2b2622; text-decoration: none; }
+
+.boton { display: inline-block; padding: 8px 20px; background: #c0622b; color: #fff; border-radius: 4px; text-decoration: none; }
+
+/* Escritorio */
+@media (min-width: 768px) {
+  .cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo,
+  .menu { margin-bottom: 0; }
+}`,
+  checks: [
+    { d: 'Usas <code>@media (min-width: 768px)</code>', src: ['css', /@media[^{]*min-width\s*:\s*768px/], msg: 'No veo @media (min-width: 768px)' },
+    { d: 'En el móvil, todo sigue centrado en columna', rect: '.logo, .menu, .boton', w: 400 },
+    { d: 'En escritorio, logo, menú y botón en fila', rect: '.logo, .menu, .boton', w: 800 },
+    { d: 'Altura de la cabecera en escritorio', rect: '.cabecera', w: 800 }
+  ]
+},
+{
+  id: 'form-flex-campos', block: 'lay', title: 'Campos que comparten fila', edit: 'css', w: 720, h: 330, views: [400, 720],
+  tags: ['flex: 1', 'gap', '@media', 'mobile first'],
+  brief: `<p>Formulario de reserva de una salida:</p>
+<ul><li>En el móvil, cada campo debajo del anterior, con <code>12px</code> entre ellos (dentro de cada <code>.fila</code> y entre filas).</li><li>A partir de <code>600px</code>, los campos de cada <code>.fila</code> se ponen <strong>uno al lado del otro</strong> y ocupan <strong>lo mismo</strong>.</li><li>El formulario mide como mucho <code>560px</code> y va centrado.</li></ul>`,
+  hint: `Base: <code>.fila { display: flex; flex-direction: column; gap: 12px; }</code>. En la <em>media query</em>: <code>.fila { flex-direction: row; }</code> y <code>.campo { flex: 1; }</code>. Cada <code>.campo</code> agrupa su <code>label</code> y su <code>input</code>.`,
+  html: `<form class="reserva">
+  <div class="fila">
+    <div class="campo"><label for="nombre">Nombre</label><input id="nombre" name="nombre"></div>
+    <div class="campo"><label for="correo">Correo</label><input id="correo" name="correo" type="email"></div>
+  </div>
+  <div class="fila">
+    <div class="campo"><label for="fecha">Fecha</label><input id="fecha" name="fecha" type="date"></div>
+    <div class="campo"><label for="personas">Personas</label><input id="personas" name="personas" type="number" min="1"></div>
+  </div>
+  <button type="submit">Reservar</button>
+</form>`,
+  css: `body { margin: 16px; font-size: 14px; }
+* { box-sizing: border-box; }
+label { display: block; font-weight: 600; margin-bottom: 4px; }
+input { width: 100%; font: inherit; padding: 6px 8px; border: 1px solid #94a3b8; border-radius: 6px; }
+button { margin-top: 12px; font: inherit; padding: 8px 20px; border: 0; border-radius: 6px; background: #c0622b; color: #fff; }
+`,
+  sol: `body { margin: 16px; font-size: 14px; }
+* { box-sizing: border-box; }
+label { display: block; font-weight: 600; margin-bottom: 4px; }
+input { width: 100%; font: inherit; padding: 6px 8px; border: 1px solid #94a3b8; border-radius: 6px; }
+button { margin-top: 12px; font: inherit; padding: 8px 20px; border: 0; border-radius: 6px; background: #c0622b; color: #fff; }
+
+.reserva {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.fila {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+@media (min-width: 600px) {
+  .fila { flex-direction: row; }
+  .campo { flex: 1; }
+}`,
+  checks: [
+    { d: 'Usas una <em>media query</em> con <code>min-width: 600px</code>', src: ['css', /@media[^{]*min-width\s*:\s*600px/], msg: 'No veo @media (min-width: 600px)' },
+    { d: 'En el móvil, un campo debajo de otro', rect: '.campo', w: 400 },
+    { d: 'En escritorio, dos campos por fila del mismo ancho', rect: '.campo', w: 720 },
+    { d: 'Formulario de 560 px como máximo y centrado', rect: '.reserva', w: 720 },
+    { d: 'El botón en su sitio', rect: 'button', w: 720 }
+  ]
+}
+);
+
+/* ---- 07-grid.js ---- */
+/* ===================== AMPLIACIÓN · CSS GRID (no entra en el temario de la UP06) ===================== */
+window.EXERCISES.push(
+{id: 'galeria-grid', block: 'grid', title: 'Galería con grid', edit: 'css', w: 480, h: 300,
   tags: ['grid-template-columns', 'repeat()', 'fr', 'span'],
   brief: `<p>Galería de 3 columnas iguales, filas de <code>80px</code> y <code>8px</code> de separación. La primera foto es destacada: ocupa 2 columnas y 2 filas.</p>`,
   hint: `<code>grid-template-columns: repeat(3, 1fr)</code>, <code>grid-auto-rows: 80px</code>. Para la destacada: <code>grid-column: span 2; grid-row: span 2</code>.`,
@@ -14621,10 +16965,8 @@ window.EXERCISES.push(
     { d: '<code>.galeria</code> es un grid', css: ['.galeria', ['display']] },
     { d: 'La foto destacada ocupa 2 × 2', rect: '.foto:first-child' },
     { d: 'Todas las fotos en su celda', rect: '.foto' }
-  ]
-},
-{
-  id: 'layout-areas', block: 'lay', title: 'Maqueta con grid-template-areas', edit: 'css', w: 480, h: 320,
+  ]},
+{id: 'layout-areas', block: 'grid', title: 'Maqueta con grid-template-areas', edit: 'css', w: 480, h: 320,
   tags: ['grid-template-areas', 'grid-area', 'fr'],
   brief: `<p>Monta la maqueta clásica con <strong>áreas con nombre</strong>:</p>
 <ul><li>Columnas: <code>120px</code> y el resto. Filas: <code>56px</code>, el resto y <code>40px</code>.</li><li>Cabecera y pie a lo ancho; menú a la izquierda y contenido a la derecha.</li><li>El grid ocupa toda la ventana, con <code>8px</code> de separación y <code>8px</code> de relleno (que no sume altura).</li></ul>`,
@@ -14673,138 +17015,53 @@ header, aside, main, footer { padding: 8px; border-radius: 6px; }`,
     { d: 'Usas <code>grid-area</code> en los hijos', js: (U, S, src) => (src.css.match(/grid-area\s*:/g) || []).length >= 4 || 'Asigna grid-area a los 4 hijos' },
     { d: 'Cabecera y pie a lo ancho', rect: 'header, footer' },
     { d: 'Menú y contenido en su sitio', rect: 'aside, main' }
-  ]
-},
+  ]},
 {
-  id: 'responsive-planes', block: 'lay', title: 'Mobile first: de 1 a 3 columnas', edit: 'css', w: 720, h: 300, views: [400, 720],
-  tags: ['@media', 'min-width', 'mobile first', 'grid'],
-  brief: `<p>En móvil las tarjetas van una debajo de otra (ya funciona). A partir de <code>600px</code> de ancho deben ponerse en <strong>3 columnas iguales</strong>. Usa los botones de ancho para ver las dos versiones.</p>`,
-  hint: `Mobile first: el CSS base es el de móvil y la media query añade lo de pantallas grandes: <code>@media (min-width: 600px) { .planes { grid-template-columns: repeat(3, 1fr); } }</code>.`,
-  html: `<div class="planes">
-  <article class="plan"><h3>Básico</h3><p>Apuntes y ejercicios</p></article>
-  <article class="plan"><h3>Pro</h3><p>Más corrección guiada</p></article>
-  <article class="plan"><h3>Centro</h3><p>Para todo el ciclo</p></article>
+  id: 'grid-auto-fill', block: 'grid', title: 'Rejilla que se adapta sola', edit: 'css', w: 640, h: 300, views: [400, 640],
+  tags: ['repeat(auto-fill)', 'minmax()', 'gap'],
+  brief: `<p>Rejilla de módulos del ciclo, <strong>sin media queries</strong>: tantas columnas como quepan, cada una de <code>140px</code> como mínimo, que se reparten el espacio sobrante a partes iguales. Separación de <code>12px</code>. Prueba los dos anchos.</p>`,
+  hint: `<code>grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));</code>. A diferencia de <code>flex-wrap</code>, la última fila no se estira: las columnas son iguales en todas las filas.`,
+  html: `<div class="modulos">
+  <div class="modulo">LMSGI</div>
+  <div class="modulo">Programación</div>
+  <div class="modulo">Bases de datos</div>
+  <div class="modulo">Sistemas</div>
+  <div class="modulo">Entornos</div>
+  <div class="modulo">Digitalización</div>
+  <div class="modulo">Sostenibilidad</div>
 </div>`,
-  css: `body { margin: 16px; }
+  css: `body { margin: 16px; font-size: 14px; }
 
-.planes {
+.modulo {
+  padding: 16px 8px;
+  text-align: center;
+  font-weight: 600;
+  background: #ede9fe;
+  color: #5b21b6;
+  border-radius: 8px;
+}
+`,
+  sol: `body { margin: 16px; font-size: 14px; }
+
+.modulos {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 12px;
 }
 
-.plan { padding: 16px; border: 1px solid #cbd5e1; border-radius: 10px; }
-.plan h3 { margin: 0 0 4px; }
-.plan p { margin: 0; color: #475569; }
-`,
-  sol: `body { margin: 16px; }
-
-.planes {
-  display: grid;
-  gap: 12px;
-}
-
-.plan { padding: 16px; border: 1px solid #cbd5e1; border-radius: 10px; }
-.plan h3 { margin: 0 0 4px; }
-.plan p { margin: 0; color: #475569; }
-
-@media (min-width: 600px) {
-  .planes {
-    grid-template-columns: repeat(3, 1fr);
-  }
+.modulo {
+  padding: 16px 8px;
+  text-align: center;
+  font-weight: 600;
+  background: #ede9fe;
+  color: #5b21b6;
+  border-radius: 8px;
 }`,
   checks: [
-    { d: 'Usas una media query <code>min-width</code>', src: ['css', /@media[^{]*min-width/], msg: 'No veo @media (min-width: …)' },
-    { d: 'En móvil, una columna', rect: '.plan', w: 400 },
-    { d: 'En escritorio, tres columnas', rect: '.plan', w: 720 }
-  ]
-},
-{
-  id: 'pie-pegado', block: 'lay', title: 'Pie pegado abajo', edit: 'css', w: 480, h: 300,
-  tags: ['flex-direction: column', 'flex: 1', 'height: 100%'],
-  brief: `<p>Hay poco contenido y el pie se queda a media pantalla. Haz que el pie quede siempre abajo del todo, estirando el <code>main</code>.</p>`,
-  hint: `<code>body</code> como columna flex de al menos toda la altura (<code>min-height: 100vh</code>) y <code>main { flex: 1 }</code>.`,
-  html: `<header>LMSGI</header>
-<main><p>Poco contenido por aquí.</p></main>
-<footer>© 2026 IES Severo Ochoa</footer>`,
-  css: `body {
-  margin: 0;
-}
-
-header { padding: 12px; background: #0f172a; color: #fff; }
-main { padding: 12px; }
-main p { margin: 0; }
-footer { padding: 12px; background: #e2e8f0; }
-`,
-  sol: `body {
-  margin: 0;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-header { padding: 12px; background: #0f172a; color: #fff; }
-main { padding: 12px; flex: 1; }
-main p { margin: 0; }
-footer { padding: 12px; background: #e2e8f0; }`,
-  checks: [
-    { d: 'El <code>main</code> se estira', rect: 'main' },
-    { d: 'El pie toca el borde inferior', rect: 'footer' }
-  ]
-},
-{
-  id: 'contador-posicion', block: 'lay', title: 'Contador de notificaciones', edit: 'css', w: 480, h: 140,
-  tags: ['position: relative', 'position: absolute', 'top/right'],
-  brief: `<p>Coloca el contador rojo sobre la esquina superior derecha del botón, desplazado <code>8px</code> hacia fuera en ambos ejes. Es un círculo de <code>22px</code> con el número centrado.</p>`,
-  hint: `El botón es la referencia: <code>position: relative</code>. El contador: <code>position: absolute; top: -8px; right: -8px</code>.`,
-  html: `<button class="campana">Avisos<span class="contador">3</span></button>`,
-  css: `body { margin: 32px; }
-
-.campana {
-  padding: 10px 16px;
-  font: inherit;
-  border: 0;
-  border-radius: 8px;
-  background: #e2e8f0;
-}
-
-.contador {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: #e11d48;
-  color: #fff;
-  font-size: 12px;
-}
-`,
-  sol: `body { margin: 32px; }
-
-.campana {
-  position: relative;
-  padding: 10px 16px;
-  font: inherit;
-  border: 0;
-  border-radius: 8px;
-  background: #e2e8f0;
-}
-
-.contador {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: #e11d48;
-  color: #fff;
-  font-size: 12px;
-  display: grid;
-  place-items: center;
-}`,
-  checks: [
-    { d: 'El botón es la referencia de posición', css: ['.campana', ['position']] },
-    { d: 'El contador está posicionado de forma absoluta', css: ['.contador', ['position']] },
-    { d: 'El botón no cambia de tamaño', rect: '.campana' },
-    { d: 'Contador en la esquina, 22 × 22', rect: '.contador' }
+    { d: '<code>.modulos</code> es un grid', css: ['.modulos', ['display']] },
+    { d: 'Sin <em>media queries</em>', nosrc: ['css', /@media/], msg: 'Este se resuelve sin @media' },
+    { d: 'En el móvil, dos columnas', rect: '.modulo', w: 400 },
+    { d: 'En pantalla ancha, cuatro columnas', rect: '.modulo', w: 640 }
   ]
 }
 );
@@ -14830,8 +17087,9 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 const stripCss = (s) => s.replace(/\/\*[\s\S]*?\*\//g, '');
 const stripHtml = (s) => s.replace(/<\!--[\s\S]*?-->/g, '');
 
+// frame-src 'none': los <iframe> del alumno (YouTube, Maps…) no se cargan; se corrige el código, no el vídeo.
 function buildDoc(html, css) {
-  return '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><base target="_blank"><style>' + BASE +
+  return '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="frame-src \'none\'"><base target="_blank"><style>' + BASE +
     '</style><style>' + css + '</style></head><body>' + html + '</body></html>';
 }
 function userParts(ex, code) { return ex.edit === 'html' ? { html: code, css: ex.css } : { html: ex.html, css: code }; }
@@ -14867,8 +17125,45 @@ function H(doc) {
     doc,
     q: (s) => doc.querySelector(s),
     qa: (s) => Array.from(doc.querySelectorAll(s)),
-    css: (el, p) => win.getComputedStyle(el).getPropertyValue(p).trim(),
+    css: (el, p, pseudo) => win.getComputedStyle(el, pseudo || null).getPropertyValue(p).trim(),
     rect: (el) => { const r = el.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; }
+  };
+}
+
+/* Simula :hover / :focus / :active sin ratón: duplica cada regla que use la pseudoclase
+   cambiándola por una clase (misma especificidad, justo detrás de la original) y pone esa clase
+   al elemento (y a sus antepasados en :hover, como pasa de verdad). Devuelve la función que lo deshace. */
+const STATES = { ':hover': /:hover(?![\w-])/g, ':focus': /:focus(?:-visible)?(?![\w-])/g, ':active': /:active(?![\w-])/g };
+function forceState(Hh, el, state) {
+  const doc = Hh.doc, re = STATES[state], cls = '__st-' + state.slice(1);
+  const added = [];
+  const walk = (parent) => {
+    const rules = parent.cssRules;
+    for (let i = rules.length - 1; i >= 0; i--) {
+      const r = rules[i];
+      if (r.selectorText != null) {
+        re.lastIndex = 0;
+        if (!re.test(r.selectorText)) continue;
+        re.lastIndex = 0;
+        try { parent.insertRule(r.selectorText.replace(re, '.' + cls) + '{' + r.style.cssText + '}', i + 1); added.push([parent, parent.cssRules[i + 1]]); } catch (e) {}
+      } else if (r.cssRules) walk(r);
+    }
+  };
+  const sheets = Array.from(doc.styleSheets);
+  const first = sheets[0];
+  // sin transiciones mientras dura la simulación: si no, getComputedStyle devuelve el valor inicial
+  first.insertRule('*,*::before,*::after{transition:none!important;animation:none!important}', first.cssRules.length);
+  const kill = first.cssRules[first.cssRules.length - 1];
+  sheets.forEach((s) => { try { walk(s); } catch (e) {} });
+  const targets = [];
+  for (let n = el; n && n.nodeType === 1; n = state === ':hover' ? n.parentElement : null) targets.push([n, n.hasAttribute('class')]);
+  targets.forEach(([n]) => n.classList.add(cls));
+  return () => {
+    targets.forEach(([n, had]) => { n.classList.remove(cls); if (!had && !n.classList.length) n.removeAttribute('class'); });
+    doc.defaultView.getComputedStyle(el).color; // aplica la vuelta al estado normal con las transiciones aún desactivadas
+    const del = (p, rule) => { const i = Array.prototype.indexOf.call(p.cssRules, rule); if (i >= 0) p.deleteRule(i); };
+    added.forEach(([p, rule]) => del(p, rule));
+    del(first, kill);
   };
 }
 
@@ -14918,12 +17213,16 @@ function evalCheck(c, U, S, src) {
     const list = props.flatMap((p) => EXPAND[p] || [p]);
     const diffs = []; const detail = [];
     se.forEach((s, i) => {
-      list.forEach((p) => {
-        const a = U.css(ue[i], p), b = S.css(s, p);
-        if (a !== b && !diffs.includes(p)) { diffs.push(p); detail.push(p + ': tienes ' + a + ' · objetivo ' + b); }
-      });
+      const undo = c.state ? [forceState(U, ue[i], c.state), forceState(S, s, c.state)] : [];
+      try {
+        list.forEach((p) => {
+          const a = U.css(ue[i], p, c.pseudo), b = S.css(s, p, c.pseudo);
+          if (a !== b && !diffs.includes(p)) { diffs.push(p); detail.push(p + ': tienes ' + a + ' · objetivo ' + b); }
+        });
+      } finally { undo.forEach((f) => f()); }
     });
-    return { ok: diffs.length === 0, msg: 'Revisa ' + diffs.join(', '), detail: detail.join('\n') };
+    const where = (c.state ? 'Con ' + c.state + ': ' : '') + (c.pseudo ? 'En ' + c.pseudo + ': ' : '');
+    return { ok: diffs.length === 0, msg: (where ? where + 'revisa ' : 'Revisa ') + diffs.join(', '), detail: detail.join('\n') };
   }
   if (c.rect) {
     const sel = c.rect, tol = c.tol ?? 2;
@@ -15035,8 +17334,18 @@ $('tabHtml').onclick = () => selectTab('html');
 $('tabCss').onclick = () => selectTab('css');
 
 /* ---------- barra lateral ---------- */
+const RECURSOS_URL = 'recursos/'; // lo rellena scripts/build.mjs
+const CHULETAS = [['chuleta-html.pdf', 'Chuleta de HTML', 'UP01–UP03'], ['chuleta-css.pdf', 'Chuleta de CSS', 'UP04–UP06']];
 function buildSide() {
   const side = $('side'); side.innerHTML = '';
+  const box = document.createElement('div'); box.className = 'side-links';
+  CHULETAS.forEach(([file, name, ups]) => {
+    const a = document.createElement('a');
+    a.className = 'side-link'; a.href = RECURSOS_URL + file; a.target = '_blank'; a.rel = 'noopener';
+    a.innerHTML = '<span>' + name + '</span><small>PDF · ' + ups + '</small>';
+    box.appendChild(a);
+  });
+  side.appendChild(box);
   BLOCKS.forEach((b) => {
     const list = EX.filter((e) => e.block === b.id);
     const done = list.filter((e) => store.done[e.id]).length;
@@ -15101,6 +17410,14 @@ $('loadSol').onclick = () => modal({
 });
 function goNext() { location.hash = EX[(curIdx + 1) % EX.length].id; }
 $('nextBtn2').onclick = goNext;
+// Modo aleatorio: un ejercicio sin resolver cualquiera (si ya están todos, uno cualquiera distinto del actual).
+function goRandom() {
+  const others = EX.filter((e) => e !== cur);
+  const pending = others.filter((e) => !store.done[e.id]);
+  const pool = pending.length ? pending : others;
+  if (pool.length) location.hash = pool[Math.floor(Math.random() * pool.length)].id;
+}
+$('randBtn').onclick = goRandom;
 
 /* ---------- vista previa ---------- */
 let frames = {};

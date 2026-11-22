@@ -17,8 +17,9 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 const stripCss = (s) => s.replace(/\/\*[\s\S]*?\*\//g, '');
 const stripHtml = (s) => s.replace(/<!--[\s\S]*?-->/g, '');
 
+// frame-src 'none': los <iframe> del alumno (YouTube, Maps…) no se cargan; se corrige el código, no el vídeo.
 function buildDoc(html, css) {
-  return '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><base target="_blank"><style>' + BASE +
+  return '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="frame-src \'none\'"><base target="_blank"><style>' + BASE +
     '</style><style>' + css + '</style></head><body>' + html + '</body></html>';
 }
 function userParts(ex, code) { return ex.edit === 'html' ? { html: code, css: ex.css } : { html: ex.html, css: code }; }
@@ -54,8 +55,45 @@ function H(doc) {
     doc,
     q: (s) => doc.querySelector(s),
     qa: (s) => Array.from(doc.querySelectorAll(s)),
-    css: (el, p) => win.getComputedStyle(el).getPropertyValue(p).trim(),
+    css: (el, p, pseudo) => win.getComputedStyle(el, pseudo || null).getPropertyValue(p).trim(),
     rect: (el) => { const r = el.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; }
+  };
+}
+
+/* Simula :hover / :focus / :active sin ratón: duplica cada regla que use la pseudoclase
+   cambiándola por una clase (misma especificidad, justo detrás de la original) y pone esa clase
+   al elemento (y a sus antepasados en :hover, como pasa de verdad). Devuelve la función que lo deshace. */
+const STATES = { ':hover': /:hover(?![\w-])/g, ':focus': /:focus(?:-visible)?(?![\w-])/g, ':active': /:active(?![\w-])/g };
+function forceState(Hh, el, state) {
+  const doc = Hh.doc, re = STATES[state], cls = '__st-' + state.slice(1);
+  const added = [];
+  const walk = (parent) => {
+    const rules = parent.cssRules;
+    for (let i = rules.length - 1; i >= 0; i--) {
+      const r = rules[i];
+      if (r.selectorText != null) {
+        re.lastIndex = 0;
+        if (!re.test(r.selectorText)) continue;
+        re.lastIndex = 0;
+        try { parent.insertRule(r.selectorText.replace(re, '.' + cls) + '{' + r.style.cssText + '}', i + 1); added.push([parent, parent.cssRules[i + 1]]); } catch (e) {}
+      } else if (r.cssRules) walk(r);
+    }
+  };
+  const sheets = Array.from(doc.styleSheets);
+  const first = sheets[0];
+  // sin transiciones mientras dura la simulación: si no, getComputedStyle devuelve el valor inicial
+  first.insertRule('*,*::before,*::after{transition:none!important;animation:none!important}', first.cssRules.length);
+  const kill = first.cssRules[first.cssRules.length - 1];
+  sheets.forEach((s) => { try { walk(s); } catch (e) {} });
+  const targets = [];
+  for (let n = el; n && n.nodeType === 1; n = state === ':hover' ? n.parentElement : null) targets.push([n, n.hasAttribute('class')]);
+  targets.forEach(([n]) => n.classList.add(cls));
+  return () => {
+    targets.forEach(([n, had]) => { n.classList.remove(cls); if (!had && !n.classList.length) n.removeAttribute('class'); });
+    doc.defaultView.getComputedStyle(el).color; // aplica la vuelta al estado normal con las transiciones aún desactivadas
+    const del = (p, rule) => { const i = Array.prototype.indexOf.call(p.cssRules, rule); if (i >= 0) p.deleteRule(i); };
+    added.forEach(([p, rule]) => del(p, rule));
+    del(first, kill);
   };
 }
 
@@ -105,12 +143,16 @@ function evalCheck(c, U, S, src) {
     const list = props.flatMap((p) => EXPAND[p] || [p]);
     const diffs = []; const detail = [];
     se.forEach((s, i) => {
-      list.forEach((p) => {
-        const a = U.css(ue[i], p), b = S.css(s, p);
-        if (a !== b && !diffs.includes(p)) { diffs.push(p); detail.push(p + ': tienes ' + a + ' · objetivo ' + b); }
-      });
+      const undo = c.state ? [forceState(U, ue[i], c.state), forceState(S, s, c.state)] : [];
+      try {
+        list.forEach((p) => {
+          const a = U.css(ue[i], p, c.pseudo), b = S.css(s, p, c.pseudo);
+          if (a !== b && !diffs.includes(p)) { diffs.push(p); detail.push(p + ': tienes ' + a + ' · objetivo ' + b); }
+        });
+      } finally { undo.forEach((f) => f()); }
     });
-    return { ok: diffs.length === 0, msg: 'Revisa ' + diffs.join(', '), detail: detail.join('\n') };
+    const where = (c.state ? 'Con ' + c.state + ': ' : '') + (c.pseudo ? 'En ' + c.pseudo + ': ' : '');
+    return { ok: diffs.length === 0, msg: (where ? where + 'revisa ' : 'Revisa ') + diffs.join(', '), detail: detail.join('\n') };
   }
   if (c.rect) {
     const sel = c.rect, tol = c.tol ?? 2;
@@ -222,8 +264,18 @@ $('tabHtml').onclick = () => selectTab('html');
 $('tabCss').onclick = () => selectTab('css');
 
 /* ---------- barra lateral ---------- */
+const RECURSOS_URL = '@RECURSOS_URL'; // lo rellena scripts/build.mjs
+const CHULETAS = [['chuleta-html.pdf', 'Chuleta de HTML', 'UP01–UP03'], ['chuleta-css.pdf', 'Chuleta de CSS', 'UP04–UP06']];
 function buildSide() {
   const side = $('side'); side.innerHTML = '';
+  const box = document.createElement('div'); box.className = 'side-links';
+  CHULETAS.forEach(([file, name, ups]) => {
+    const a = document.createElement('a');
+    a.className = 'side-link'; a.href = RECURSOS_URL + file; a.target = '_blank'; a.rel = 'noopener';
+    a.innerHTML = '<span>' + name + '</span><small>PDF · ' + ups + '</small>';
+    box.appendChild(a);
+  });
+  side.appendChild(box);
   BLOCKS.forEach((b) => {
     const list = EX.filter((e) => e.block === b.id);
     const done = list.filter((e) => store.done[e.id]).length;
@@ -288,6 +340,14 @@ $('loadSol').onclick = () => modal({
 });
 function goNext() { location.hash = EX[(curIdx + 1) % EX.length].id; }
 $('nextBtn2').onclick = goNext;
+// Modo aleatorio: un ejercicio sin resolver cualquiera (si ya están todos, uno cualquiera distinto del actual).
+function goRandom() {
+  const others = EX.filter((e) => e !== cur);
+  const pending = others.filter((e) => !store.done[e.id]);
+  const pool = pending.length ? pending : others;
+  if (pool.length) location.hash = pool[Math.floor(Math.random() * pool.length)].id;
+}
+$('randBtn').onclick = goRandom;
 
 /* ---------- vista previa ---------- */
 let frames = {};

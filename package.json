@@ -1,6 +1,6 @@
 {
   "name": "lmsgi-trainer-html-css",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Entrenador de HTML y CSS para LMSGI (0373): ejercicios cortos con corrección automática",
   "type": "module",
