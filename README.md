@@ -2,6 +2,8 @@
 
 Ejercicios cortos de HTML y CSS con corrección automática para el módulo **Lenguajes de Marcas y Sistemas de Gestión de Información (0373)**. Escribes el código a la izquierda y lo comparas con el objetivo a la derecha. Las comprobaciones te dicen qué falta.
 
+La idea está inspirada en [CSSBattle](https://cssbattle.dev/), pero en lugar de retos abstractos (reproducir formas con el menor código posible), cada ejercicio se centra en lo que se practica y se evalúa en el módulo: maquetar con HTML semántico, montar formularios que validen, dar estilo a partir de una guía de diseño o adaptar una página al móvil. Y sin competir: no hay cronómetro ni ranking.
+
 > [!IMPORTANT]
 > **Versión «best effort».** Buena parte de este entrenador (la aplicación, los ejercicios y sus comprobaciones) se ha generado con **Claude**, el asistente de IA de Anthropic. Todavía no he podido revisarlo todo a fondo, pero lo que sí he revisado me parece muy útil, así que prefiero compartirlo ya, tal como está, en vez de esperar a tenerlo perfecto. Este proyecto nace de que en ningún lado encontré una plataforma de mini-ejercicios alineada con el temario del módulo, y me pareció que podía ser útil a otros estudiantes.
 >
